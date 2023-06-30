@@ -1,8 +1,7 @@
-from PyQt5 import QtWebEngineCore
+from PyQt5 import QtWebEngineCore#
 from dep.func import log
 import configparser
 import requests
-import ctypes
 import os
 
 # import ad block parser
@@ -11,30 +10,28 @@ from adblockparser import AdblockRules
 # get and define dir´s
 current_dir = os.path.dirname(os.path.realpath(__file__))
 
-# init shared c
-lib = ctypes.cdll.LoadLibrary(current_dir+'\\c\\file_reader.so')
-# Declare the return type and argument types of the C function
-lib.read_file.restype = ctypes.c_char_p
-lib.read_file.argtypes = [ctypes.c_char_p]
+AdblockRules_paths = []
 
 RULES_AD = {
-    "en": "https://easylist-downloads.adblockplus.org/easylist.txt",
-    "de": "https://easylist.to/easylistgermany/easylistgermany.txt",
-    "ko": "https://easylist-downloads.adblockplus.org/koreanlist+easylist.txt",
-    "Youtube": "https://gh-pages.ewpratten.com/youtube_ad_blocklist/adblockplus.txt",
-}
+    "easylist_en": "https://easylist-downloads.adblockplus.org/easylist.txt",
+    "easylist_ko": "https://easylist-downloads.adblockplus.org/koreanlist+easylist.txt",
+    "adblockplus": "https://gh-pages.ewpratten.com/youtube_ad_blocklist/adblockplus.txt",
+    "easylist_thirdparty": "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_thirdparty.txt",
+    "easylist_adservers": "https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_adservers.txt",
+}   
 RULES_TRACKER = {
-    "list1": "https://easylist.to/easylist/easyprivacy.txt",
+    "easyprivacy": "https://easylist.to/easylist/easyprivacy.txt",
 }
 
 RULES_AD_local = {
-    "en": current_dir+"\\rules\\ADblockrules\\ADlist_DE.txt",
-    "de": current_dir+"\\rules\\ADblockrules\\ADlist_EN.txt",
-    "ko": current_dir+"\\rules\\ADblockrules\\ADlist_KO.txt",
-    "Youtube": current_dir+"\\rules\\ADblockrules\\ADlist_YOUTUBE.txt",
+    "easylist_en": [current_dir+"\\rules\\ADblockrules\\ADlist_EASYLIST_EN.txt", "0"],                 # index 0
+    "easylist_ko": [current_dir+"\\rules\\ADblockrules\\ADlist_EASYLIST_KO.txt", "1"],                 # index 1
+    "adblockplus": [current_dir+"\\rules\\ADblockrules\\ADlist_ADBLOCKPLUS.txt", "2"],                 # index 2
+    "easylist_thirdparty": [current_dir+"\\rules\\ADblockrules\\ADlist_EASYLIST_THIRDPARTY.txt", "3"], # index 3
+    "easylist_adservers": [current_dir+"\\rules\\ADblockrules\\ADlist_EASYLIST_ADSERVERS.txt", "4"],   # index 4
 }
-RULES_TRACKER_local= {
-    "list1": current_dir+"\\rules\\Trackerblockrules\\TR_LIST1.txt",
+RULES_TRACKER_local = {
+    "easyprivacy": [current_dir+"\\rules\\Trackerblockrules\\TR_EASYPRIVACY.txt", "0"],     # index 0
 }
 
 response = {}
@@ -54,6 +51,7 @@ config_dir = os.path.join(current_dir, 'config', 'config.ini')
 
 
 def UpdateRules():
+    return
     for key, value in RULES_AD.items():
         with open(os.path.join(current_dir, f"rules/ADblockrules/ADlist_{key.upper()}.txt"), 'w+', encoding="utf-8") as f:
             f.writelines(text[key])
@@ -65,7 +63,14 @@ def UpdateRules():
             log("", f"Blocker: Rules for {key.upper()} updated")
 
 def ReadRules(path):
-    return ""
+    # read content in chunks
+    with open(path, 'r', encoding="utf_8") as file:
+        lines = [line.strip().replace(',', '') for line in file]
+        file.close()
+
+    print (str(lines))
+    return [str(lines)]
+
 
 class Block():
     log("", "Blocker Activated")
@@ -76,33 +81,48 @@ class Block():
 
 
 # define rules
-rules1        = AdblockRules(ReadRules(RULES_AD_local["de"]), use_re2=True, max_mem=512*1024*1024)
-rules2        = AdblockRules(ReadRules(RULES_AD_local["en"]), use_re2=True, max_mem=512*1024*1024)
-rules3        = AdblockRules(ReadRules(RULES_AD_local["ko"]), use_re2=True, max_mem=512*1024*1024)
-rulesyt       = AdblockRules(ReadRules(RULES_AD_local["Youtube"]), use_re2=True, max_mem=512*1024*1024)
-rulestracker  = AdblockRules(ReadRules(RULES_TRACKER_local["list1"]), use_re2=True, max_mem=512*1024*1024)
-
+rules1        = AdblockRules(ReadRules(RULES_AD_local["easylist_en"][0]))
+rules2        = AdblockRules(ReadRules(RULES_AD_local["easylist_ko"][0]))
+rules3        = AdblockRules(ReadRules(RULES_AD_local["easylist_thirdparty"][0]))
+rules4        = AdblockRules(ReadRules(RULES_AD_local["easylist_adservers"][0]))
+rulesyt       = AdblockRules(ReadRules(RULES_AD_local["adblockplus"][0]))
+rulestracker  = AdblockRules(ReadRules(RULES_TRACKER_local["easyprivacy"][0]))
+options = {'script': True, 'third-party': True}
 
 def checkBlock_ads(url):
-    # check german rules
-    if rules1.should_block(url):
-        return True
-    
     # check english rules
-    if rules2.should_block(url):
-        return True
+    easylist_en_Checked = config["lists"]["easylist_en"]
+    if easylist_en_Checked == "True":
+        if rules1.should_block(url, options):
+            return True
 
     # check korean rules
-    if rules3.should_block(url):
-        return True
+    easylist_ko_Checked = config["lists"]["easylist_ko"]
+    if easylist_ko_Checked == "True":
+        if rules2.should_block(url, options):
+            return True
     
+    # check thirdparty rules
+    easylist_thirdparty_Checked = config["lists"]["easylist_thirdparty"]
+    if easylist_thirdparty_Checked == "True":
+        if rules3.should_block(url, options):
+            return True
+        
+    # check adservers rules
+    easylist_adservers_Checked = config["lists"]["easylist_adservers"]
+    if easylist_adservers_Checked == "True":
+        if rules4.should_block(url, options):
+            return True
+
     # check youtube rules
-    if rulesyt.should_block(url):
-        return True
+    adblockplus_Checked = config["lists"]["adblockplus"]
+    if adblockplus_Checked == "True":
+        if rulesyt.should_block(url, options):
+            return True
 
 def checkBlock_trackers(url):
     # check tracker(1) rules
-    if rulestracker.should_block(url):
+    if rulestracker.should_block(url, options):
         return True
 
 
@@ -120,6 +140,7 @@ class WebEngineUrlRequestInterceptor(QtWebEngineCore.QWebEngineUrlRequestInterce
         if config['settings']['adblocker'] == "True":
             # check if url should be blocked
             if checkBlock_ads(url) == True:
+                print (url)
                 # block url
                 info.block(True)
                 # add to total blocked count
@@ -130,6 +151,7 @@ class WebEngineUrlRequestInterceptor(QtWebEngineCore.QWebEngineUrlRequestInterce
         if config['settings']['trackerblocker'] == "True":
             # check if url should be blocked
             if checkBlock_trackers(url) == True:
+                print (url)
                 # block url
                 info.block(True)
                 # add to total blocked count

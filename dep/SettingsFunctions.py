@@ -1,3 +1,5 @@
+from PyQt5.QtCore import Qt
+
 def ApplySettings(self, config, log): 
     try:
         # javascript
@@ -38,6 +40,43 @@ def ApplySettings(self, config, log):
             self.DefaultSearchEngine_comboBox.setCurrentIndex(1) 
         elif "https://www.bing.com" == str(config['startpage']['search_address']):
             self.DefaultSearchEngine_comboBox.setCurrentIndex(2)
+
+        # lists
+        easylist_en_item = self.ADblockerLists_comboBox.model().item(0)
+        if config["lists"]["easylist_en"] == "True":
+            easylist_en_item.setCheckState(Qt.Checked)
+        else:
+            easylist_en_item.setCheckState(Qt.Unchecked)
+
+        easylist_ko_item = self.ADblockerLists_comboBox.model().item(1)
+        if config["lists"]["easylist_ko"] == "True":
+            easylist_ko_item.setCheckState(Qt.Checked)
+        else:
+            easylist_ko_item.setCheckState(Qt.Unchecked)
+
+        adblockplus_item = self.ADblockerLists_comboBox.model().item(2)
+        if config["lists"]["adblockplus"] == "True":  
+            adblockplus_item.setCheckState(Qt.Checked)
+        else:
+            adblockplus_item.setCheckState(Qt.Unchecked)
+
+        easylist_thirdparty_item = self.ADblockerLists_comboBox.model().item(3)
+        if config["lists"]["easylist_thirdparty"] == "True":
+            easylist_thirdparty_item.setCheckState(Qt.Checked)
+        else:
+            easylist_thirdparty_item.setCheckState(Qt.Unchecked)
+
+        easylist_adservers_item = self.ADblockerLists_comboBox.model().item(4)
+        if config["lists"]["easylist_adservers"] == "True":
+            easylist_adservers_item.setCheckState(Qt.Checked)
+        else:
+            easylist_adservers_item.setCheckState(Qt.Unchecked)
+
+        easyprivacy_item = self.TrackerblockerLists_comboBox.model().item(0)
+        if config["lists"]["easyprivacy"] == "True":  
+            easyprivacy_item.setCheckState(Qt.Checked)
+        else:
+            easyprivacy_item.setCheckState(Qt.Unchecked)
 
         log("", "Settings applied")
     except Exception as e:

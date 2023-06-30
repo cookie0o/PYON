@@ -17,12 +17,12 @@ from dep.UIelements.tabbarUI import Ui_tabbar
 # outside functions
 from dep.func import *
 # block func.
-from dep.block import Block, WebEngineUrlRequestInterceptor
+from dep.block import Block, WebEngineUrlRequestInterceptor, RULES_AD_local, RULES_TRACKER_local
 # settings func.
 from dep.SettingsFunctions import ApplySettings
 # event func.
 from dep.EventFunctions import (AllowJavascript_, EnableADblocker_, EnableTrackerblocker_, UserAgent_, UserAgent_combobox,
-                                 SessionTabs_, SearchPage_) 
+                                 SessionTabs_, SearchPage_, Lists_) 
 
 # enable debugger
 debugger = False
@@ -75,7 +75,7 @@ class MainWindow(QWidget, Ui_wpWidget, Ui_tabbar):
     def __init__(self, parent = None):
         super(MainWindow, self).__init__(parent = parent)
         self.setMouseTracking(True)
-        self.setupUi(self) # main search bar
+        self.setupUi(self, RULES_AD_local, RULES_TRACKER_local) # main search bar
         self.tabsetupUi(self) # tab bar
         # setup
         self.setup()
@@ -128,6 +128,9 @@ class MainWindow(QWidget, Ui_wpWidget, Ui_tabbar):
         self.SaveAndOpenTabsOnNextSession_checkBox.stateChanged.connect(lambda: SessionTabs_(self)) 
         # custom search engine
         self.DefaultSearchEngine_comboBox.currentIndexChanged.connect(lambda: SearchPage_(self))
+        # lists
+        self.ADblockerLists_comboBox.activated.connect(lambda: Lists_(self, RULES_AD_local, RULES_TRACKER_local))
+        self.TrackerblockerLists_comboBox.activated.connect(lambda: Lists_(self, RULES_AD_local, RULES_TRACKER_local))
 
         # display current user agent to user
         CurrentUserAgent = self.tabs.currentWidget().page().profile().httpUserAgent()
@@ -169,7 +172,6 @@ class MainWindow(QWidget, Ui_wpWidget, Ui_tabbar):
             self.i = self.tabs.addTab(self.browser, label)
             self.tabs.setCurrentIndex(0)
 
-
             # adding action to the browser when url is changed
             # update the url
             self.browser.urlChanged.connect(lambda qurl, browser = self.browser:
@@ -180,9 +182,7 @@ class MainWindow(QWidget, Ui_wpWidget, Ui_tabbar):
             self.browser.loadFinished.connect(lambda _, i=self.i, browser=self.browser, tabs=self.tabs:
                                     set_tab_title(i, browser, tabs, None))
             
-            self.browser.loadStarted.connect(lambda i=self.i, browser=self.browser, tabs=self.tabs:
-                                    set_tab_title(i, browser, tabs, "Loading..."))
-            
+
             """
             self.inspector = QWebEngineView()
             self.inspector.setWindowTitle('Web Inspector')
@@ -311,9 +311,9 @@ class MainWindow(QWidget, Ui_wpWidget, Ui_tabbar):
         try:
             self.profile = QWebEngineProfile.defaultProfile()
             # set the cookie path
-            #profile.setPersistentStoragePath(current_dir+"\\data\\persistentData")
+            self.profile.setPersistentStoragePath(current_dir+"\\data")
             # set the cache path
-            #profile.setCachePath(current_dir+"\\data")
+            self.profile.setCachePath(current_dir+"\\data")
 
             log("", "created profile and defined paths")
             # update ADblock urls

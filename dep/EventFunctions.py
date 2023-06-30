@@ -1,5 +1,5 @@
 from PyQt5.QtWebEngineWidgets import *
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, Qt
 import os
 
 from dep.func import log, config, config_dir
@@ -137,3 +137,28 @@ def SearchPage_(self):
         config.write(configfile)
 
     log("", "Search engine saved and applied")
+
+
+def Lists_(self, RULES_AD_local, RULES_TRACKER_local):
+    # check what lists are checked and not and save values
+
+    # ad blocker lists
+    for name, keys in RULES_AD_local.items():
+        index =  keys[1]
+        item = self.ADblockerLists_comboBox.model().item(int(index))
+        if item.checkState() == Qt.Checked:
+            config["lists"][str(name)] = "True"
+        else:
+            config["lists"][str(name)] = "False"
+
+    # tracker blocker lists
+    for name, keys in RULES_TRACKER_local.items():
+        index =  keys[1]
+        item = self.TrackerblockerLists_comboBox.model().item(int(index))
+        if item.checkState() == Qt.Checked:
+            config["lists"][str(name)] = "True"
+        else:
+            config["lists"][str(name)] = "False"
+
+    with open(config_dir, 'w') as configfile:
+        config.write(configfile)

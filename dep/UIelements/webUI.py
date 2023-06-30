@@ -17,6 +17,41 @@ home_png = upper_dir+'\\res\\home.png'
 settings_png = upper_dir+'\\res\\settings.png'
 close_png = upper_dir.replace("\\", "/")+'/res/close.png'
 
+
+class CheckableComboBox(QtWidgets.QComboBox):
+	def __init__(self):
+		super().__init__()
+		self._changed = False
+
+		self.view().pressed.connect(self.handleItemPressed)
+
+	def setItemChecked(self, index, checked=False):
+		item = self.model().item(index, self.modelColumn()) # QStandardItem object
+
+		if checked:
+			item.setCheckState(QtCore.Qt.Checked)
+		else:
+			item.setCheckState(QtCore.Qt.Unchecked)
+
+	def handleItemPressed(self, index):
+		item = self.model().itemFromIndex(index)
+
+		if item.checkState() == QtCore.Qt.Checked:
+			item.setCheckState(QtCore.Qt.Unchecked)
+		else:
+			item.setCheckState(QtCore.Qt.Checked)
+		self._changed = True
+
+
+	def hidePopup(self):
+		if not self._changed:
+			super().hidePopup()
+		self._changed = False
+
+	def itemChecked(self, index):
+		item = self.model().item(index, self.modelColumn())
+		return item.checkState() == QtCore.Qt.Checked
+
 # select everything in the search bar when selected
 class LineEdit(QtWidgets.QLineEdit):
     def __init__(self, parent=None):
@@ -49,7 +84,7 @@ def SettingsPage(self):
 
 
 class Ui_wpWidget(object):
-    def setupUi(self, wpWidget):
+    def setupUi(self, wpWidget, RULES_AD_local, RULES_TRACKER_local):
         wpWidget.setObjectName("wpWidget")
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -163,7 +198,7 @@ class Ui_wpWidget(object):
 
         # settings win
         self.verticalLayoutWidget = QtWidgets.QWidget(wpWidget)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(2, 42, 330, 790))
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(2, 40, 330, 790))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
@@ -176,7 +211,7 @@ class Ui_wpWidget(object):
         font.setBold(False)
         font.setWeight(50)
         self.label_2.setFont(font)
-        self.label_2.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.label_2.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(44, 44, 44);")
         self.label_2.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
         self.label_2.setObjectName("label_2")
         self.verticalLayout.addWidget(self.label_2)
@@ -196,7 +231,7 @@ class Ui_wpWidget(object):
         font = QtGui.QFont()
         font.setPointSize(13)
         self.AllowJavascript_checkBox.setFont(font)
-        self.AllowJavascript_checkBox.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.AllowJavascript_checkBox.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(44, 44, 44);")
         self.AllowJavascript_checkBox.setObjectName("AllowJavascript_checkBox")
         self.verticalLayout.addWidget(self.AllowJavascript_checkBox)
         self.label_10 = QtWidgets.QLabel(self.verticalLayoutWidget)
@@ -209,7 +244,7 @@ class Ui_wpWidget(object):
         font = QtGui.QFont()
         font.setPointSize(13)
         self.SaveAndOpenTabsOnNextSession_checkBox.setFont(font)
-        self.SaveAndOpenTabsOnNextSession_checkBox.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.SaveAndOpenTabsOnNextSession_checkBox.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(44, 44, 44);")
         self.SaveAndOpenTabsOnNextSession_checkBox.setObjectName("SaveAndOpenTabsOnNextSession_checkBox")
         self.verticalLayout.addWidget(self.SaveAndOpenTabsOnNextSession_checkBox)
         self.label_3 = QtWidgets.QLabel(self.verticalLayoutWidget)
@@ -222,11 +257,21 @@ class Ui_wpWidget(object):
         font = QtGui.QFont()
         font.setPointSize(13)
         self.EnableADblocker_checkBox.setFont(font)
-        self.EnableADblocker_checkBox.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.EnableADblocker_checkBox.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(44, 44, 44);")
         self.EnableADblocker_checkBox.setObjectName("EnableADblocker_checkBox")
         self.verticalLayout.addWidget(self.EnableADblocker_checkBox)
+        self.ADblockerLists_comboBox = CheckableComboBox()
+        self.ADblockerLists_comboBox.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(65, 65, 65);")
+        self.ADblockerLists_comboBox.setObjectName("ADblockerLists_comboBox")
+        self.verticalLayout.addWidget(self.ADblockerLists_comboBox)
+        self.label_17 = QtWidgets.QLabel(self.verticalLayoutWidget)
+        self.label_17.setMaximumSize(QtCore.QSize(16777215, 5))
+        self.label_17.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.label_17.setText("")
+        self.label_17.setObjectName("label_17")
+        self.verticalLayout.addWidget(self.label_17)
         self.label_9 = QtWidgets.QLabel(self.verticalLayoutWidget)
-        self.label_9.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.label_9.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(44, 44, 44);")
         self.label_9.setObjectName("label_9")
         self.verticalLayout.addWidget(self.label_9)
         self.label = QtWidgets.QLabel(self.verticalLayoutWidget)
@@ -239,11 +284,24 @@ class Ui_wpWidget(object):
         font = QtGui.QFont()
         font.setPointSize(13)
         self.EnableTrackerblocker_checkBox.setFont(font)
-        self.EnableTrackerblocker_checkBox.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.EnableTrackerblocker_checkBox.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(44, 44, 44);")
         self.EnableTrackerblocker_checkBox.setObjectName("EnableTrackerblocker_checkBox")
         self.verticalLayout.addWidget(self.EnableTrackerblocker_checkBox)
+        self.TrackerblockerLists_comboBox = CheckableComboBox()
+        self.TrackerblockerLists_comboBox.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(65, 65, 65);")
+        self.TrackerblockerLists_comboBox.setInputMethodHints(QtCore.Qt.ImhNone)
+        self.TrackerblockerLists_comboBox.setEditable(False)
+        self.TrackerblockerLists_comboBox.setFrame(True)
+        self.TrackerblockerLists_comboBox.setObjectName("TrackerblockerLists_comboBox")
+        self.verticalLayout.addWidget(self.TrackerblockerLists_comboBox)
+        self.label_16 = QtWidgets.QLabel(self.verticalLayoutWidget)
+        self.label_16.setMaximumSize(QtCore.QSize(16777215, 5))
+        self.label_16.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.label_16.setText("")
+        self.label_16.setObjectName("label_16")
+        self.verticalLayout.addWidget(self.label_16)
         self.label_6 = QtWidgets.QLabel(self.verticalLayoutWidget)
-        self.label_6.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.label_6.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(44, 44, 44);")
         self.label_6.setObjectName("label_6")
         self.verticalLayout.addWidget(self.label_6)
         self.label_11 = QtWidgets.QLabel(self.verticalLayoutWidget)
@@ -263,7 +321,7 @@ class Ui_wpWidget(object):
         self.DefaultSearchEngine_comboBox = QtWidgets.QComboBox(self.verticalLayoutWidget)
         self.DefaultSearchEngine_comboBox.setMinimumSize(QtCore.QSize(0, 0))
         self.DefaultSearchEngine_comboBox.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.DefaultSearchEngine_comboBox.setStyleSheet("background-color: rgb(65, 65, 65);")
+        self.DefaultSearchEngine_comboBox.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(65, 65, 65);")
         self.DefaultSearchEngine_comboBox.setFrame(True)
         self.DefaultSearchEngine_comboBox.setObjectName("DefaultSearchEngine_comboBox")
         self.DefaultSearchEngine_comboBox.addItem("")
@@ -292,39 +350,39 @@ class Ui_wpWidget(object):
         font = QtGui.QFont()
         font.setPointSize(13)
         self.UserAgentSwitcher_checkBox.setFont(font)
-        self.UserAgentSwitcher_checkBox.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.UserAgentSwitcher_checkBox.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(44, 44, 44);")
         self.UserAgentSwitcher_checkBox.setObjectName("UserAgentSwitcher_checkBox")
         self.verticalLayout.addWidget(self.UserAgentSwitcher_checkBox)
         self.UserAgentMode_comboBox = QtWidgets.QComboBox(self.verticalLayoutWidget)
-        self.UserAgentMode_comboBox.setStyleSheet("background-color: rgb(65, 65, 65);")
+        self.UserAgentMode_comboBox.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(65, 65, 65);")
         self.UserAgentMode_comboBox.setObjectName("UserAgentMode_comboBox")
         self.UserAgentMode_comboBox.addItem("")
         self.UserAgentMode_comboBox.addItem("")
         self.verticalLayout.addWidget(self.UserAgentMode_comboBox)
         self.label_7 = QtWidgets.QLabel(self.verticalLayoutWidget)
-        self.label_7.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.label_7.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(44, 44, 44);")
         self.label_7.setObjectName("label_7")
         self.verticalLayout.addWidget(self.label_7)
         self.CurrentUserAgent_plainTextEdit = QtWidgets.QPlainTextEdit(self.verticalLayoutWidget)
         self.CurrentUserAgent_plainTextEdit.setMaximumSize(QtCore.QSize(99999, 50))
-        self.CurrentUserAgent_plainTextEdit.setStyleSheet("background-color: rgb(65, 65, 65);")
+        self.CurrentUserAgent_plainTextEdit.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(65, 65, 65);")
         self.CurrentUserAgent_plainTextEdit.setPlainText("")
         self.CurrentUserAgent_plainTextEdit.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.CurrentUserAgent_plainTextEdit.setObjectName("CurrentUserAgent_plainTextEdit")
         self.verticalLayout.addWidget(self.CurrentUserAgent_plainTextEdit)
         self.label_8 = QtWidgets.QLabel(self.verticalLayoutWidget)
-        self.label_8.setStyleSheet("background-color: rgb(44, 44, 44);")
+        self.label_8.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(44, 44, 44);")
         self.label_8.setObjectName("label_8")
         self.verticalLayout.addWidget(self.label_8)
         self.CustomUserAgent_plainTextEdit = QtWidgets.QPlainTextEdit(self.verticalLayoutWidget)
         self.CustomUserAgent_plainTextEdit.setMaximumSize(QtCore.QSize(99999, 50))
-        self.CustomUserAgent_plainTextEdit.setStyleSheet("background-color: rgb(65, 65, 65);")
+        self.CustomUserAgent_plainTextEdit.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(65, 65, 65);")
         self.CustomUserAgent_plainTextEdit.setPlainText("")
         self.CustomUserAgent_plainTextEdit.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
         self.CustomUserAgent_plainTextEdit.setObjectName("CustomUserAgent_plainTextEdit")
         self.verticalLayout.addWidget(self.CustomUserAgent_plainTextEdit)
         self.UpdateUserAgent_pushButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
-        self.UpdateUserAgent_pushButton.setStyleSheet("background-color: rgb(65, 65, 65);")
+        self.UpdateUserAgent_pushButton.setStyleSheet("color: rgb(255, 255, 255);background-color: rgb(65, 65, 65);")
         self.UpdateUserAgent_pushButton.setFlat(False)
         self.UpdateUserAgent_pushButton.setObjectName("UpdateUserAgent_pushButton")
         self.verticalLayout.addWidget(self.UpdateUserAgent_pushButton)
@@ -344,7 +402,8 @@ class Ui_wpWidget(object):
         self.verticalLayout.addItem(spacerItem)
         # hide settings window by default
         self.verticalLayoutWidget.hide()
-
+        
+        
         # set auto completer for the url bar
         from dep.func import comp_data
         completer = QCompleter(comp_data.data)
@@ -385,6 +444,10 @@ class Ui_wpWidget(object):
 
         # set tooltip duration and style
         self.setToolTipDuration(50)
+
+        # add all lists to combo box
+        self.ADblockerLists_comboBox.addItems(RULES_AD_local)
+        self.TrackerblockerLists_comboBox.addItems(RULES_TRACKER_local)
 
     def retranslateUi(self, wpWidget):
         _translate = QtCore.QCoreApplication.translate

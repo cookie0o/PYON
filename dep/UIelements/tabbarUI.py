@@ -47,6 +47,7 @@ class Ui_tabbar(object):
             QTabBar {
                 background-color: rgb(35, 34, 39);
                 color: rgb(255, 255, 255);
+                border-bottom: 1.5px solid white;
             }
 
             QTabBar::tab {
@@ -59,10 +60,16 @@ class Ui_tabbar(object):
 
             QTabBar::tab:selected {
                 background-color: rgb(27, 27, 27);
-                border: 0.5px solid white;
-                border-bottom: 0px solid;
+                border-top: 0.5px solid white;
+                border-right: 0.5px solid white;
+                border-left: 0.5px solid white;
                 border-top-left-radius: 4px;
                 border-top-right-radius: 4px;
+            }
+
+
+            QTabBar::tab:hover {
+                background-color:rgb(10, 10, 10);
             }
             """)
 
