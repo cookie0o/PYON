@@ -1,7 +1,7 @@
 # PYON BETA
 PYON (Python Online) is a fully featured Browser made with PyQt5.
 
-### features
+### Features
 - Tor Routing
 - Custom Proxy
 - Youtube AD block
