@@ -1,3 +1,4 @@
+from PyQt5.QtNetwork import QNetworkProxy
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -6,6 +7,7 @@ import re
 import os
 
 # import outside python
+from dep.python.search_engines import *
 from dep.python.fake import *
 
 # get current dir
@@ -28,7 +30,7 @@ regex = re.compile(
 
 
 class functions():
-    # showContextMenu, UpdateUserAgent, get_profile
+    # showContextMenu, UpdateUserAgent, get_profile, TorSearchEngineBypassFunc
     class misc():
         def showContextMenu(self):
             # get mouse position
@@ -76,6 +78,25 @@ class functions():
                 return self.tor_search_engine
             else:
                 return self.search_engine
+            
+        # Tor Search Engine Bypass
+        def TorSearchEngineBypassFunc(self, url=None):
+            # only active when tor routing is on
+            if self.RouteTrafficThroughTor:
+                if self.TorSearchEngineBypass:
+                    self.browser.stop()
+                    if url is None:
+                        url = self.browser.url().host().replace("www.", "")
+                    if url in SearchEngineUrl:
+                        QNetworkProxy.setApplicationProxy(QNetworkProxy(QNetworkProxy.NoProxy))
+                    else:
+                        # set proxy
+                        self.proxy.setType(QNetworkProxy.Socks5Proxy)
+                        self.proxy.setHostName("127.0.0.1")
+                        self.proxy.setPort(self.socks_port)
+                        # set proxy
+                        QNetworkProxy.setApplicationProxy(self.proxy) 
+                    self.browser.reload()
         
         
     # set_tab_title, update_urlbar, add_new_tab, navigate_to_url,
@@ -114,7 +135,6 @@ class functions():
         def update_urlbar(self, q, browser = None):
             if browser != self.tabs.currentWidget():
                 return
-            raw_url = q.toString()
 
             # set text to the url bar
             self.urlbar.setText(q.toString())
@@ -129,7 +149,7 @@ class functions():
                 # if url is blank
                 if qurl is None:
                     # creating aurl
-                    qurl = self.set_url()
+                    qurl = tabs.set_url()
 
                 # creating a QWebEngineView object
                 self.browser = QWebEngineView()
@@ -198,6 +218,9 @@ class functions():
                     q.setScheme("https")
                 else:
                     pass
+                
+            # check Tor Search EngineBypass before loading
+            functions.misc.TorSearchEngineBypassFunc(self, q)
             # set the url
             self.tabs.currentWidget().load(q)
 

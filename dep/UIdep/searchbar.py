@@ -15,7 +15,7 @@ close_png = current_dir+'/UIres/close.png'
 
 AutoCompleteWords = [
     "github.com", "youtube.com", "twitch.tv", "reddit.com", "spotify.com", "github.com/cookie0o", "facebook.com", "wikipedia.com", "amazon.com", "instagram.com", "yahoo.com", "twitter.com",
-    "naver.com", "bit.ly", "vk.com", "live.com", "gmail.com", "google.com", "duckduckgo.com"
+    "naver.com", "bit.ly", "vk.com", "live.com", "gmail.com", "google.com", "duckduckgo.com", "dnsleaktest.com"
 ]
 
 

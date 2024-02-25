@@ -6,6 +6,7 @@ import os
 current_dir = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
 
 close_png = current_dir+'/UIres/close.png'
+info_png = current_dir+'/UIres/info.png'
 
 height = 2
 
@@ -121,7 +122,7 @@ class Ui_settings(object):
         self.CustomUserAgent_radioButton.setStyleSheet("color: rgb(255, 255, 255);")
         self.CustomUserAgent_radioButton.setObjectName("CustomUserAgent_radioButton")
         self.label_7 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-        self.label_7.setGeometry(QtCore.QRect(5, 339, 300, 21))
+        self.label_7.setGeometry(QtCore.QRect(5, 339, 297, 21))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.label_7.setFont(font)
@@ -135,50 +136,48 @@ class Ui_settings(object):
         self.RouteTrafficThroughTor_checkBox.setStyleSheet("color: rgb(255, 255, 255);")
         self.RouteTrafficThroughTor_checkBox.setObjectName("RouteTrafficThroughTor_checkBox")
         self.label_8 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-        self.label_8.setGeometry(QtCore.QRect(5, 380, 300, 30))
-        self.label_8.setStyleSheet("color: rgb(255, 255, 255);")
+        self.label_8.setGeometry(QtCore.QRect(5, 369, 300, 41))
+        self.label_8.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: transparent;")
         self.label_8.setTextFormat(QtCore.Qt.PlainText)
         self.label_8.setWordWrap(True)
         self.label_8.setObjectName("label_8")
         self.TrackingLinkProtection_checkBox = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
-        self.TrackingLinkProtection_checkBox.setGeometry(QtCore.QRect(5, 410, 300, 30))
+        self.TrackingLinkProtection_checkBox.setGeometry(QtCore.QRect(5, 430, 300, 30))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.TrackingLinkProtection_checkBox.setFont(font)
-        self.TrackingLinkProtection_checkBox.setStyleSheet("color: rgb(255, 255, 255);")
+        self.TrackingLinkProtection_checkBox.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: qconicalgradient(cx:0, cy:0, angle:135, stop:0 rgba(255, 255, 255, 0));")
         self.TrackingLinkProtection_checkBox.setObjectName("TrackingLinkProtection_checkBox")
-        self.label_9 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-        self.label_9.setGeometry(QtCore.QRect(5, 430, 300, 30))
-        self.label_9.setStyleSheet("color: rgb(255, 255, 255);")
-        self.label_9.setTextFormat(QtCore.Qt.PlainText)
-        self.label_9.setWordWrap(True)
-        self.label_9.setObjectName("label_9")
         self.label_10 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-        self.label_10.setGeometry(QtCore.QRect(5, 460, 300, 20))
+        self.label_10.setGeometry(QtCore.QRect(5, 469, 300, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.label_10.setFont(font)
         self.label_10.setStyleSheet("color: rgb(255, 255, 255);")
         self.label_10.setObjectName("label_10")
         self.widget_2 = QtWidgets.QWidget(self.scrollAreaWidgetContents)
-        self.widget_2.setGeometry(QtCore.QRect(0, 480, 301, 41))
+        self.widget_2.setGeometry(QtCore.QRect(0, 490, 301, 51))
         self.widget_2.setObjectName("widget_2")
         self.OffProxy_radioButton = QtWidgets.QRadioButton(self.widget_2)
-        self.OffProxy_radioButton.setGeometry(QtCore.QRect(5, 0, 300, 21))
+        self.OffProxy_radioButton.setGeometry(QtCore.QRect(5, 0, 281, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.OffProxy_radioButton.setFont(font)
         self.OffProxy_radioButton.setStyleSheet("color: rgb(255, 255, 255);")
         self.OffProxy_radioButton.setObjectName("OffProxy_radioButton")
         self.CustomProxy_radioButton = QtWidgets.QRadioButton(self.widget_2)
-        self.CustomProxy_radioButton.setGeometry(QtCore.QRect(5, 20, 300, 21))
+        self.CustomProxy_radioButton.setGeometry(QtCore.QRect(5, 21, 301, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.CustomProxy_radioButton.setFont(font)
         self.CustomProxy_radioButton.setStyleSheet("color: rgb(255, 255, 255);")
         self.CustomProxy_radioButton.setObjectName("CustomProxy_radioButton")
+        self.CustomProxy_radioButton.raise_()
+        self.OffProxy_radioButton.raise_()
         self.ProxyInput_widget = QtWidgets.QWidget(self.scrollAreaWidgetContents)
-        self.ProxyInput_widget.setGeometry(QtCore.QRect(0, 520, 371, 90))
+        self.ProxyInput_widget.setGeometry(QtCore.QRect(0, 540, 371, 90))
         self.ProxyInput_widget.setObjectName("ProxyInput_widget")
         self.label_11 = QtWidgets.QLabel(self.ProxyInput_widget)
         self.label_11.setGeometry(QtCore.QRect(5, 0, 300, 16))
@@ -205,7 +204,7 @@ class Ui_settings(object):
         self.ApplyProxy_pushButton.setStyleSheet("color: rgb(255, 255, 255);")
         self.ApplyProxy_pushButton.setObjectName("ApplyProxy_pushButton")
         self.label_13 = QtWidgets.QLabel(self.ProxyInput_widget)
-        self.label_13.setGeometry(QtCore.QRect(5, 70, 300, 21))
+        self.label_13.setGeometry(QtCore.QRect(5, 70, 291, 21))
         self.label_13.setStyleSheet("color: rgb(255, 255, 255);")
         self.label_13.setTextFormat(QtCore.Qt.PlainText)
         self.label_13.setWordWrap(True)
@@ -218,6 +217,27 @@ class Ui_settings(object):
         self.UserAgentInput_plainTextEdit.setStyleSheet("color: rgb(255, 255, 255);")
         self.UserAgentInput_plainTextEdit.setPlainText("")
         self.UserAgentInput_plainTextEdit.setObjectName("UserAgentInput_plainTextEdit")
+        self.TorSearchEngineBypass_checkBox = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
+        self.TorSearchEngineBypass_checkBox.setGeometry(QtCore.QRect(5, 399, 300, 31))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.TorSearchEngineBypass_checkBox.setFont(font)
+        self.TorSearchEngineBypass_checkBox.setStyleSheet("color: rgb(255, 255, 255);")
+        self.TorSearchEngineBypass_checkBox.setObjectName("TorSearchEngineBypass_checkBox")
+        self.label_14 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.label_14.setGeometry(QtCore.QRect(5, 420, 311, 16))
+        self.label_14.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: transparent;")
+        self.label_14.setTextFormat(QtCore.Qt.PlainText)
+        self.label_14.setWordWrap(True)
+        self.label_14.setObjectName("label_14")
+        self.label_15 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.label_15.setGeometry(QtCore.QRect(5, 450, 300, 21))
+        self.label_15.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: transparent;")
+        self.label_15.setTextFormat(QtCore.Qt.PlainText)
+        self.label_15.setWordWrap(True)
+        self.label_15.setObjectName("label_15")
         self.label_5.raise_()
         self.CloseSettings_pushButton.raise_()
         self.label_3.raise_()
@@ -232,16 +252,18 @@ class Ui_settings(object):
         self.RandomUserAgent_radioButton.raise_()
         self.CustomUserAgent_radioButton.raise_()
         self.label_7.raise_()
-        self.RouteTrafficThroughTor_checkBox.raise_()
-        self.label_8.raise_()
-        self.label_9.raise_()
-        self.TrackingLinkProtection_checkBox.raise_()
-        self.label_10.raise_()
         self.widget_2.raise_()
         self.ProxyInput_widget.raise_()
         self.UserAgentInput_widget.raise_()
+        self.TorSearchEngineBypass_checkBox.raise_()
+        self.RouteTrafficThroughTor_checkBox.raise_()
+        self.label_15.raise_()
+        self.TrackingLinkProtection_checkBox.raise_()
+        self.label_8.raise_()
+        self.label_14.raise_()
+        self.label_10.raise_()
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.CloseSettings_pushButton.setStyleSheet("""
+        button = ("""
             QPushButton{
                 background-color:rgba(0, 0, 0, 0);
                 color:rgb(255, 255, 255);
@@ -256,6 +278,7 @@ class Ui_settings(object):
                 padding-left:5px;
             }
         """)
+        self.CloseSettings_pushButton.setStyleSheet(button)
 
         self.retranslateUi(wpWidget)
         QtCore.QMetaObject.connectSlotsByName(wpWidget)
@@ -278,6 +301,7 @@ class Ui_settings(object):
         self.UserAgentInput_plainTextEdit.setPlainText(self.custom_user_agent_input)
         # [Privacy]
         self.RouteTrafficThroughTor_checkBox.setChecked(self.RouteTrafficThroughTor)
+        self.TorSearchEngineBypass_checkBox.setChecked(self.TorSearchEngineBypass)
         self.TrackingLinkProtection_checkBox.setChecked(self.TrackingLinkProtection)
         # [Proxy]
         self.OffProxy_radioButton.setChecked(self.OffProxy)
@@ -299,6 +323,7 @@ class Ui_settings(object):
         self.UserAgentInput_plainTextEdit.textChanged.connect(lambda: self.setUserAgentInput())
         # [Privacy]
         self.RouteTrafficThroughTor_checkBox.toggled.connect(lambda state: self.setRouteTrafficThroughTor(state))
+        self.TorSearchEngineBypass_checkBox.toggled.connect(lambda state: self.setTorSearchEngineBypass(state))
         self.TrackingLinkProtection_checkBox.toggled.connect(lambda state: self.setTrackingLinkProtection(state))
         # [Proxy]
         self.OffProxy_radioButton.toggled.connect(lambda state: self.setOffProxy(state))
@@ -306,7 +331,7 @@ class Ui_settings(object):
         self.CustomProxyAddress_lineEdit.textChanged.connect(lambda: self.setCustomProxyAddress())
         self.CustomProxyPort_lineEdit.textChanged.connect(lambda: self.setCustomProxyPort())
         self.ApplyProxy_pushButton.clicked.connect(lambda state: self.setApplyProxy(state))
-
+        
     def setJavascript(self, state): 
         if state == 0: self.javascript = False 
         else: self.javascript = True
@@ -349,6 +374,11 @@ class Ui_settings(object):
     def setRouteTrafficThroughTor(self, state):
         if state == 0: self.RouteTrafficThroughTor = False 
         else: self.RouteTrafficThroughTor = True
+        self.settings_apply() 
+        
+    def setTorSearchEngineBypass(self, state):
+        if state == 0: self.TorSearchEngineBypass = False 
+        else: self.TorSearchEngineBypass = True
         self.settings_apply()  
         
     def setTrackingLinkProtection(self, state):
@@ -384,27 +414,29 @@ class Ui_settings(object):
         _translate = QtCore.QCoreApplication.translate
         self.label_5.setText(_translate("wpWidget", "Settings"))
         self.label_3.setText(_translate("wpWidget", "General"))
-        self.DisableJavascript_checkBox.setText(_translate("wpWidget", "Load Javascript"))
-        self.label_4.setText(_translate("Form", "Blocker"))
-        self.AdBlocker_checkBox.setText(_translate("Form", "Ad Blocker"))
-        self.TrackerBlocker_checkBox.setText(_translate("Form", "Tracker Blocker"))
-        self.CookieBlocker_checkBox.setText(_translate("Form", "Cookie Blocker"))
-        self.label_2.setText(_translate("Form", "Ad, Tracker and Cookie blocker will slow down your browser!"))
-        self.label_6.setText(_translate("Form", "User Agent"))
-        self.DefaultUserAgent_radioButton.setText(_translate("Form", "Default"))
-        self.RandomUserAgent_radioButton.setText(_translate("Form", "Random"))
-        self.CustomUserAgent_radioButton.setText(_translate("Form", "Custom"))
-        self.label_7.setText(_translate("Form", "Privacy"))
-        self.RouteTrafficThroughTor_checkBox.setText(_translate("Form", "Route Traffic through Tor"))
-        self.label_8.setText(_translate("Form", "Tor routing will make your browser slower, default search engine will be changed to duckduckgo.com"))
-        self.TrackingLinkProtection_checkBox.setText(_translate("Form", "Tracking Link Protection"))
-        self.label_9.setText(_translate("Form", "Will try to block ip grabber links from sites like \"grabify.link\""))
-        self.label_10.setText(_translate("Form", "Proxy"))
-        self.OffProxy_radioButton.setText(_translate("Form", "OFF"))
-        self.CustomProxy_radioButton.setText(_translate("Form", "Custom"))
-        self.label_11.setText(_translate("Form", "Address"))
-        self.CustomProxyAddress_lineEdit.setPlaceholderText(_translate("Form", "ProxyXY.com"))
-        self.label_12.setText(_translate("Form", "Port"))
-        self.CustomProxyPort_lineEdit.setPlaceholderText(_translate("Form", "7773"))
-        self.ApplyProxy_pushButton.setText(_translate("Form", "Apply Proxy"))
-        self.label_13.setText(_translate("Form", "Proxy will be deactivated when tor Routing is active"))
+        self.DisableJavascript_checkBox.setText(_translate("wpWidget", "Disable Javascript"))
+        self.label_4.setText(_translate("wpWidget", "Blocker"))
+        self.AdBlocker_checkBox.setText(_translate("wpWidget", "Ad Blocker"))
+        self.TrackerBlocker_checkBox.setText(_translate("wpWidget", "Tracker Blocker"))
+        self.CookieBlocker_checkBox.setText(_translate("wpWidget", "Cookie Blocker"))
+        self.label_2.setText(_translate("wpWidget", "Ad, Tracker and Cookie blocker will slow down your browser!"))
+        self.label_6.setText(_translate("wpWidget", "User Agent"))
+        self.DefaultUserAgent_radioButton.setText(_translate("wpWidget", "Default"))
+        self.RandomUserAgent_radioButton.setText(_translate("wpWidget", "Random"))
+        self.CustomUserAgent_radioButton.setText(_translate("wpWidget", "Custom"))
+        self.label_7.setText(_translate("wpWidget", "Privacy"))
+        self.RouteTrafficThroughTor_checkBox.setText(_translate("wpWidget", "Route Traffic through Tor"))
+        self.label_8.setText(_translate("wpWidget", "Tor routing will make your browser slower, default search engine will be changed to duckduckgo.com"))
+        self.TrackingLinkProtection_checkBox.setText(_translate("wpWidget", "Tracking Link Protection"))
+        self.label_10.setText(_translate("wpWidget", "Proxy"))
+        self.OffProxy_radioButton.setText(_translate("wpWidget", "OFF"))
+        self.CustomProxy_radioButton.setText(_translate("wpWidget", "Custom"))
+        self.label_11.setText(_translate("wpWidget", "Address"))
+        self.CustomProxyAddress_lineEdit.setPlaceholderText(_translate("wpWidget", "ProxyXY.com"))
+        self.label_12.setText(_translate("wpWidget", "Port"))
+        self.CustomProxyPort_lineEdit.setPlaceholderText(_translate("wpWidget", "7773"))
+        self.ApplyProxy_pushButton.setText(_translate("wpWidget", "Apply Proxy"))
+        self.label_13.setText(_translate("wpWidget", "Proxy will be deactivated when tor Routing is active"))
+        self.TorSearchEngineBypass_checkBox.setText(_translate("wpWidget", "Tor Search Engine Bypass"))
+        self.label_14.setText(_translate("wpWidget", "Tor bypass (Ip wont be hidden on Search Engine sites)"))
+        self.label_15.setText(_translate("wpWidget", "Will try to block ip grabber links from sites like \"grabify.link\""))

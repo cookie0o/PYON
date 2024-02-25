@@ -6,10 +6,6 @@ import os
 # import outside python
 from dep.python.functions import functions
 
-# import UI components
-from dep.UIdep.settingspage import Ui_settings
-from dep.UIdep.searchbar import Ui_searchbar
-
 # get dir
 current_dir = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
 
@@ -106,6 +102,3 @@ class Ui_tabbar(object):
         #    else:pass
         # else remove the tab
         self.tabs.removeTab(index)
-        
-        
-        

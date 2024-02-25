@@ -1,8 +1,6 @@
-from PyQt5.QtNetwork import QNetworkProxy, QNetworkProxyQuery, QNetworkProxyFactory
 from PyQt5.QtWebEngineWidgets import QWebEngineSettings
-from PyQt5.QtCore import QUrl
+from PyQt5.QtNetwork import QNetworkProxy
 import configparser
-import time
 import os
 
 # import outside python
@@ -128,6 +126,10 @@ class settings():
         if RouteTrafficThroughTor == "True": self.RouteTrafficThroughTor = True
         else: self.RouteTrafficThroughTor = False
         #
+        TorSearchEngineBypass = privacy["TorSearchEngineBypass"]
+        if TorSearchEngineBypass == "True": self.TorSearchEngineBypass = True
+        else: self.TorSearchEngineBypass = False
+        #
         TrackingLinkProtection = privacy["TrackingLinkProtection"]
         if TrackingLinkProtection == "True": self.TrackingLinkProtection = True
         else: self.TrackingLinkProtection = False
@@ -202,6 +204,8 @@ class settings():
         # [Privacy]
         privacy["RouteTrafficThroughTor"] = str(self.RouteTrafficThroughTor)
         #
+        privacy["TorSearchEngineBypass"] = str(self.TorSearchEngineBypass)
+        #
         privacy["TrackingLinkProtection"] = str(self.TrackingLinkProtection)
         
         # [Proxy]
@@ -224,7 +228,7 @@ class settings():
         # save the settings before applying them
         self.settings_save()
         
-        proxy = QNetworkProxy()
+        self.proxy = QNetworkProxy()
         
         # apply all settings than can be applied
         
@@ -262,11 +266,12 @@ class settings():
             self.UserAgentInput_plainTextEdit.setStyleSheet("color: white;")
             
         # [Privacy]
+        # rote traffic through tor
         if self.RouteTrafficThroughTor:
             # set proxy
-            proxy.setType(QNetworkProxy.Socks5Proxy)
-            proxy.setHostName("127.0.0.1")
-            proxy.setPort(self.socks_port)
+            self.proxy.setType(QNetworkProxy.Socks5Proxy)
+            self.proxy.setHostName("127.0.0.1")
+            self.proxy.setPort(self.socks_port)
         if not self.RouteTrafficThroughTor:
             QNetworkProxy.setApplicationProxy(QNetworkProxy(QNetworkProxy.NoProxy))
             
@@ -284,16 +289,16 @@ class settings():
                 self.ProxyInput_widget.setStyleSheet("background-color: transparent; color: white;")
                 # set custom proxy
                 if self.applyProxy:
-                    proxy.setType(QNetworkProxy.Socks5Proxy)
-                    proxy.setHostName(str(self.custom_proxy_address_input))
-                    proxy.setPort(int(self.custom_proxy_port_input))
-                    proxy.setCapabilities(QNetworkProxy.SctpTunnelingCapability)
+                    self.proxy.setType(QNetworkProxy.Socks5Proxy)
+                    self.proxy.setHostName(str(self.custom_proxy_address_input))
+                    self.proxy.setPort(int(self.custom_proxy_port_input))
+                    self.proxy.setCapabilities(QNetworkProxy.SctpTunnelingCapability)
         if self.RouteTrafficThroughTor:
             self.ProxyInput_widget.setDisabled(True)
             self.ProxyInput_widget.setStyleSheet("background-color: #4a4949; color: #4a4949;")
             
         # set proxy
-        QNetworkProxy.setApplicationProxy(proxy) 
+        QNetworkProxy.setApplicationProxy(self.proxy) 
         # reload the browser so settings can apply
         self.browser.reload()
         

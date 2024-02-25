@@ -32,12 +32,13 @@ class WebEnginePage(QWebEnginePage):
     def javaScriptConsoleMessage(self, level, msg, line, sourceID):
         if self.debug_javaScriptConsoleMessage:
             print("Lvl: "+level+" - Msg: "+msg)
-            
 
 class MainWindow(QWidget, javascript, Ui_searchbar, Ui_tabbar, Ui_settings, settings, TorProxy):
     # constructor
     def __init__(self, parent = None):
         super(MainWindow, self).__init__(parent = parent)
+        self.setMouseTracking(True)
+        
         # get profile
         functions.misc.get_profile(self, current_dir)
         
@@ -45,24 +46,23 @@ class MainWindow(QWidget, javascript, Ui_searchbar, Ui_tabbar, Ui_settings, sett
         self.settings_load()
         
         # outside uis
-        self.setMouseTracking(True)
         self.setupUi(self) # main search bar
         self.tabsetupUi(self) # tab bar
-        self.settingssetupUi(self)
+        self.settingssetupUi(self) # settings page
         # hide setting page on start
         self.show_hideSettingsPage()
         
+        # launch tor proxy
+        self.launchTorProxy()        
+
         # apply settings
         self.settings_apply()
     
         # javascript injection
         self.inject()
-        
+                
         # setup
         self.resize(1500, 800)
-        
-        # launch tor proxy
-        self.launchTorProxy()
 
         # Events
         self.urlbar.returnPressed.connect(lambda: functions.tab_functions.navigate_to_url(self))
@@ -71,6 +71,7 @@ class MainWindow(QWidget, javascript, Ui_searchbar, Ui_tabbar, Ui_settings, sett
         self.reload_PushButton.clicked.connect(lambda: self.tabs.currentWidget().reload())
         self.home_PushButton.clicked.connect(lambda: self.tabs.currentWidget().setUrl(QUrl(functions.misc.set_url(self))))
         self.settings_PushButton.clicked.connect(lambda: self.show_hideSettingsPage())
+        self.browser.urlChanged.connect(lambda: functions.misc.TorSearchEngineBypassFunc(self))
             
     def resizeEvent(self, event):
         # settings window positioning
