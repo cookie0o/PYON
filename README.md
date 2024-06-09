@@ -12,4 +12,4 @@ PYON (Python Online) is a fully featured Browser made with PyQt5.
 ### Preview
 ![image](https://github.com/Sch-Raphael/PYON/assets/81589649/b607d458-4ce8-4ae2-93ec-383c8b1571c9)
 
-
+UIcons by <a href="https://www.flaticon.com/uicons">Flaticon</a>
