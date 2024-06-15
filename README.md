@@ -1,5 +1,5 @@
 # PYON BETA
-PYON (Python Online) is a fully featured Browser made with PyQt5.
+PYON (Python Online) is a fully featured Browser made using PyQt5.
 
 ### Features
 - Theme
