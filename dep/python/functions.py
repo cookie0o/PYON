@@ -1,21 +1,23 @@
-from PyQt5.QtNetwork import QNetworkProxy
+from PyQt5.QtNetwork import QNetworkProxy, QNetworkRequest, QNetworkAccessManager, QNetworkReply
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+import json
 import re
 import os
 
 # import outside python
-from dep.python.search_engines import *
+from dep.python.lists import *
+from dep.python.pages import *
 from dep.python.fake import *
 
 # get current dir
 current_dir = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
 
-back_png = current_dir+'/UIres/arrow-left.png'
-forward_png = current_dir+'/UIres/arrow-right.png'
-reload_png = current_dir+'/UIres/refresh.png'
+back_png = current_dir+'/UIres/dark/arrow-left.png'
+forward_png = current_dir+'/UIres/dark/arrow-right.png'
+reload_png = current_dir+'/UIres/dark/refresh.png'
 
 
 # validate url
@@ -29,29 +31,142 @@ regex = re.compile(
 )
 
 
+class IconLoader(QObject):
+    icon_loaded = pyqtSignal(QIcon)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.manager = QNetworkAccessManager(self)
+
+    def get_icon_from_url(self, self_, url):
+        request = QNetworkRequest(QUrl(url))
+        reply = self.manager.get(request)
+        reply.finished.connect(lambda: self.on_reply_finished(self_, reply))
+
+    def on_reply_finished(self, self_, reply):
+        if reply.error() == QNetworkReply.NoError:
+            data = reply.readAll()
+            pixmap = QPixmap()
+            pixmap.loadFromData(data)
+            pixmap = self.remove_transparent_pixels(pixmap)
+            pixmap = pixmap.scaled(60, 60, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            icon = self.add_padding_to_icon(pixmap)
+            self.icon_loaded.emit(icon)
+        else:
+            if self_.debug_javaScriptConsoleMessage:
+                print("Error loading icon:", reply.errorString())
+
+        reply.deleteLater()
+        return
+
+    def remove_transparent_pixels(self, pixmap):
+        image = pixmap.toImage()
+        rect = image.rect()
+
+        def is_transparent(x, y):
+            return image.pixelColor(x, y).alpha() == 0
+
+        top, bottom, left, right = 0, rect.bottom(), 0, rect.right()
+        
+        # Find top
+        for y in range(rect.top(), rect.bottom() + 1):
+            for x in range(rect.left(), rect.right() + 1):
+                if not is_transparent(x, y):
+                    top = y
+                    break
+            if top != 0:
+                break
+
+        # Find bottom
+        for y in range(rect.bottom(), rect.top() - 1, -1):
+            for x in range(rect.left(), rect.right() + 1):
+                if not is_transparent(x, y):
+                    bottom = y
+                    break
+            if bottom != rect.bottom():
+                break
+
+        # Find left
+        for x in range(rect.left(), rect.right() + 1):
+            for y in range(rect.top(), rect.bottom() + 1):
+                if not is_transparent(x, y):
+                    left = x
+                    break
+            if left != 0:
+                break
+
+        # Find right
+        for x in range(rect.right(), rect.left() - 1, -1):
+            for y in range(rect.top(), rect.bottom() + 1):
+                if not is_transparent(x, y):
+                    right = x
+                    break
+            if right != rect.right():
+                break
+
+        cropped_rect = QRect(left, top, right - left + 1, bottom - top + 1)
+        cropped_image = image.copy(cropped_rect)
+        cropped_pixmap = QPixmap.fromImage(cropped_image)
+        return cropped_pixmap
+
+    def add_padding_to_icon(self, pixmap, padding_top=7, padding_left=12):
+        width = pixmap.width() + padding_left
+        height = pixmap.height() + padding_top
+        padded_pixmap = QPixmap(width, height)
+        padded_pixmap.fill(Qt.transparent)  # Ensure the background is transparent
+        
+        painter = QPainter(padded_pixmap)
+        painter.drawPixmap(padding_left, padding_top, pixmap)
+        painter.end()
+        
+        return QIcon(padded_pixmap)
+    
+
+
 class functions():
-    # showContextMenu, UpdateUserAgent, get_profile, TorSearchEngineBypassFunc
+    # showContextMenu, UpdateUserAgent, get_profile, TorSearchEngineBypassFunc, Tor_status_msg
     class misc():
+        # hide js logs
+        def MessageHandler(messageType, context, message):
+            # Constants for message types
+            QtInfoMsg = 0
+            QtWarningMsg = 1
+            # Ignore QtWebEngine informational and warning messages
+            if messageType not in [QtInfoMsg, QtWarningMsg]:
+                return
+
         def showContextMenu(self):
             # get mouse position
             mouse_position = self.mapFromGlobal(QCursor.pos())
             
             # Create the context menu and add actions
             menu = QMenu(self)
-            back_action = QAction(QIcon(back_png), "back", self)
-            forward_action = QAction(QIcon(forward_png), "forward", self)
-            reload_action = QAction(QIcon(reload_png), "reload", self)
+            open_url_in_new_tab = QAction("Open URL in new Tab", self)
+            copy_url = QAction("Copy URL", self)
+            back_action = QAction("back", self)
+            forward_action = QAction( "forward", self)
+            reload_action = QAction("reload", self)
+            menu.addAction(open_url_in_new_tab)
+            menu.addAction(copy_url)
             menu.addAction(back_action)
             menu.addAction(forward_action)
             menu.addAction(reload_action)
             # set style (hover aka. selected is not working I will have to fix this)
-            menu.setStyleSheet('background-color: rgb(35, 34, 39);\n'
-                            'color: white;\n'
-                            'QMenu::item:selected{\n'
-                            '    background-color: rgb(27, 27, 27);\n'
-                            '}')
+            menu.setStyleSheet("""\
+                            QMenu {
+                                background-color: rgb(35, 34, 39);
+                                color: white;
+                            }
+                            QMenu::item:hover {
+                                background-color: rgb(27, 27, 27);
+                            }
+                        """)
 
             # EVENTS [context menu]
+            # back event
+            open_url_in_new_tab.triggered.connect(lambda: functions.tab_functions.add_new_tab(self, self.tabs, self.tabs.currentWidget().url()))
+            # back event
+            copy_url.triggered.connect(lambda: QApplication.clipboard().setText(self.tabs.currentWidget().url().toString()))
             # back event
             back_action.triggered.connect(lambda: self.tabs.currentWidget().back())
             # forward event
@@ -96,46 +211,114 @@ class functions():
                         self.proxy.setPort(self.socks_port)
                         # set proxy
                         QNetworkProxy.setApplicationProxy(self.proxy) 
-                    self.browser.reload()
+                    self.browser.load()
         
+        # Get tor status and IP
+        def connection_status_msg(self): 
+            msg_box = QMessageBox()
+            
+            req = QNetworkRequest(QUrl(self.ip_api))
+            
+            self.nam = QNetworkAccessManager()
+            self.nam.finished.connect(lambda reply: handleResponse(self, reply))
+            self.nam.get(req)  
+            
+            def handleResponse(self, reply):
+                er = reply.error()
+                
+                # if no error show info
+                if er == QNetworkReply.NoError:
+                    # reply
+                    bytes_string = reply.readAll().data()
+                    json_str = bytes_string.decode('utf-8')
+                    json_obj = json.loads(json_str)
+                    
+                    # values
+                    if self.RouteTrafficThroughTor:
+                        Tor = "ON"
+                    else:
+                        Tor = "OFF"
+                    IP = json_obj["query"]
+                    Location = json_obj["country"]+", "+json_obj["regionName"]+": "+json_obj["city"]
+                    
+                    # message box
+                    msg_box.setWindowTitle('Tor Info')
+                    msg_box.setText(f"""\
+Tor:           {Tor}
+IP:             {IP}
+Location: {Location}
+""")
+                    msg_box.exec_()
+                    
+                # report error
+                else:
+                    print("Error occured: ", er)
+                    print(reply.errorString()) 
+            
         
     # set_tab_title, update_urlbar, add_new_tab, navigate_to_url,
-    # tab_open_doubleclick, current_tab_changed, close_current_tab, reload_tabs
-    # activate fullscreen mode
+    # tab_open_doubleclick, current_tab_changed, close_current_tab, reload_tabs, get_icon_from_url
     class tab_functions():  
+        # get favicon
+        def get_icon_from_url(self, i, tabs):
+            def on_icon_loaded(icon, loader, tabs, i):
+                loader.deleteLater()  # Clean up the loader
+                # set icon
+                tabs.setTabIcon(i, icon)
+
+            widget = tabs.widget(i)
+            if widget is None:
+                return
+            url = widget.page().iconUrl().toString()
+
+            loader = IconLoader()
+            loader.icon_loaded.connect(lambda icon: on_icon_loaded(icon, loader, tabs, i))
+            loader.get_icon_from_url(self, url)
+
+
         # activate fullscreen mode
         def Fullscreen(self, request):
             if request.toggleOn():
                 self.showFullScreen()
                 # hide gui elements
                 self.tabs.setTabBarAutoHide(True) # tabbar
-                self.wpWidget_3.hide() # search bar
-                self.settings_widget.hide() # settings window
+                self.wpWidget_3.hide() # search bar  
             else:
                 self.showNormal()
                 # show gui elements
                 self.tabs.setTabBarAutoHide(False) # tabbar
                 self.wpWidget_3.show() # search bar
-                self.settings_widget.show() # settings window
+            # accept the request
             request.accept()
         
+
         # change tab title
         def set_tab_title(i, browser, tabs, title):
-            # check if tab title is provided if not get it
-            if title is None:
-                title = browser.page().title()
-
-            # set tab title and shorten it after 25 chars
-            if len(title) > 25:
-                title = title[:25] + "..."
-            tabs.setTabText(i, " "+title+" ")  
+            def set_title(browser, tabs, title):
+                widget = tabs.widget(i)
+                if widget is None:
+                    return
+                # check if tab title is provided if not get it
+                if title is None:
+                    title = widget.page().title()
+                    
+                # set tab title and shorten it after 25 chars
+                if len(title) > 25:
+                    title = title[:25] + "..."
+                tabs.setTabText(i, " "+title+" ")  
+            # get title when the page fully loaded
+            browser.loadFinished.connect(lambda: set_title(browser, tabs, title))
           
 
         # update the url bar
         def update_urlbar(self, q, browser = None):
             if browser != self.tabs.currentWidget():
                 return
-
+            
+            # dont update prefix urls
+            #if ((q.toString()).replace("file:///", "")) in self.pages_paths:
+            #    return
+            
             # set text to the url bar
             self.urlbar.setText(q.toString())
             # set cursor position
@@ -148,8 +331,8 @@ class functions():
             try:
                 # if url is blank
                 if qurl is None:
-                    # creating aurl
-                    qurl = tabs.set_url()
+                    # get start page url
+                    qurl = functions.misc.set_url(self)
 
                 # creating a QWebEngineView object
                 self.browser = QWebEngineView()
@@ -163,10 +346,15 @@ class functions():
                 self.browser.setContextMenuPolicy(Qt.CustomContextMenu)
                 self.browser.customContextMenuRequested.connect(lambda: functions.misc.showContextMenu(self))
 
-                # allow full screen
+                # full screen
                 self.browser.settings().setAttribute(QWebEngineSettings.FullScreenSupportEnabled, True)
-                # allow plugins
-                self.browser.settings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
+                # plugins
+                self.browser.settings().setAttribute(QWebEngineSettings.PluginsEnabled, False)
+                # DNS prefetch
+                self.browser.settings().setAttribute(QWebEngineSettings.DnsPrefetchEnabled, True)
+
+                # apply settings
+                self.settings_apply()
 
                 # setting url to browser
                 self.browser.setUrl(QUrl(qurl))
@@ -182,8 +370,16 @@ class functions():
 
                 # adding action to the browser when loading is finished
                 # set the tab title
-                self.browser.loadFinished.connect(lambda _, i=self.i, browser=self.browser, tabs=tabs:
+                self.browser.urlChanged.connect(lambda _, i=self.i, browser=self.browser, tabs=tabs:
                                         functions.tab_functions.set_tab_title(i, browser, tabs, None))
+                
+                # javascript injection
+                self.browser.urlChanged.connect(lambda _, i=self.i, tabs=self.tabs:  
+                                self.inject_qt(i, tabs))
+                
+                # set favicon
+                self.browser.iconChanged.connect(lambda _, i=self.i, tabs=self.tabs:  
+                                functions.tab_functions.get_icon_from_url(self, i, tabs))
             
                 # fullscreen mode event
                 self.browser.page().fullScreenRequested.connect(lambda request: functions.tab_functions.Fullscreen(self, request))
@@ -195,6 +391,11 @@ class functions():
         # navigate to url
         def navigate_to_url(self):
             q = QUrl(self.urlbar.text())
+
+            # pages
+            if q.toString() == self.prefix+"settings":
+                # get and load pages url
+                q = self.pages(q.toString())
 
             # if scheme is blank and there is no domain end then use the default search machine to get a result
             if q.scheme() == "":
@@ -223,12 +424,6 @@ class functions():
             functions.misc.TorSearchEngineBypassFunc(self, q)
             # set the url
             self.tabs.currentWidget().load(q)
-
-
-        # when double clicked is pressed on tabs
-        def tab_open_doubleclick(self, tabs):
-            # creating a new tab
-            functions.tab_functions.add_new_tab(self, tabs)
 
 
         # when tab is changed

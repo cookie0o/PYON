@@ -1,22 +1,9 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QCompleter
 import os
 
 # get and define dir´s
 current_dir = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
-
-back_png = current_dir+'/UIres/arrow-left.png'
-forward_png = current_dir+'/UIres/arrow-right.png'
-reload_png = current_dir+'/UIres/refresh.png'
-home_png = current_dir+'/UIres/home.png'
-settings_png = current_dir+'/UIres/settings.png'
-close_png = current_dir+'/UIres/close.png'
-
-
-AutoCompleteWords = [
-    "github.com", "youtube.com", "twitch.tv", "reddit.com", "spotify.com", "github.com/cookie0o", "facebook.com", "wikipedia.com", "amazon.com", "instagram.com", "yahoo.com", "twitter.com",
-    "naver.com", "bit.ly", "vk.com", "live.com", "gmail.com", "google.com", "duckduckgo.com", "dnsleaktest.com"
-]
 
 
 class CheckableComboBox(QtWidgets.QComboBox):
@@ -91,9 +78,6 @@ class Ui_searchbar(object):
         self.wpWidget_3 = QtWidgets.QWidget(self.wpWidget_2)
         self.wpWidget_3.setMinimumSize(QtCore.QSize(0, 40))
         self.wpWidget_3.setMaximumSize(QtCore.QSize(16777215, 40))
-        self.wpWidget_3.setStyleSheet("QWidget#wpWidget_3{\n"
-"    background-color:rgb(35, 34, 39);\n"
-"}")
         self.wpWidget_3.setObjectName("wpWidget_3")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.wpWidget_3)
         self.horizontalLayout_2.setContentsMargins(-1, 0, 10, 0)
@@ -109,31 +93,31 @@ class Ui_searchbar(object):
         self.back_PushButton = QtWidgets.QPushButton(self.wpWidget_5)
         self.back_PushButton.setMinimumSize(QtCore.QSize(30, 30))
         self.back_PushButton.setMaximumSize(QtCore.QSize(30, 30))
-        self.back_PushButton.setIcon(QtGui.QIcon(back_png))
         self.back_PushButton.setObjectName("back_PushButton")
         self.horizontalLayout.addWidget(self.back_PushButton)
         self.forward_PushButton = QtWidgets.QPushButton(self.wpWidget_5)
         self.forward_PushButton.setMinimumSize(QtCore.QSize(30, 30))
         self.forward_PushButton.setMaximumSize(QtCore.QSize(30, 30))
-        self.forward_PushButton.setIcon(QtGui.QIcon(forward_png))
         self.forward_PushButton.setObjectName("forward_PushButton")
         self.horizontalLayout.addWidget(self.forward_PushButton)
         self.reload_PushButton = QtWidgets.QPushButton(self.wpWidget_5)
         self.reload_PushButton.setMinimumSize(QtCore.QSize(30, 30))
         self.reload_PushButton.setMaximumSize(QtCore.QSize(30, 30))
-        self.reload_PushButton.setIcon(QtGui.QIcon(reload_png))
         self.reload_PushButton.setObjectName("reload_PushButton")
         self.horizontalLayout.addWidget(self.reload_PushButton)
+        self.connection_status_PushButton = QtWidgets.QPushButton(self.wpWidget_5)
+        self.connection_status_PushButton.setMinimumSize(QtCore.QSize(30, 30))
+        self.connection_status_PushButton.setMaximumSize(QtCore.QSize(30, 30))
+        self.connection_status_PushButton.setObjectName("connection_status_PushButton")
         self.settings_PushButton = QtWidgets.QPushButton(self.wpWidget_5)
         self.settings_PushButton.setMinimumSize(QtCore.QSize(30, 30))
         self.settings_PushButton.setMaximumSize(QtCore.QSize(30, 30))
-        self.settings_PushButton.setIcon(QtGui.QIcon(settings_png))
         self.settings_PushButton.setObjectName("settings_PushButton")
+		
         # self.horizontalLayout.addWidget(self.settings_PushButton)
         self.home_PushButton = QtWidgets.QPushButton(self.wpWidget_5)
         self.home_PushButton.setMinimumSize(QtCore.QSize(30, 30))
         self.home_PushButton.setMaximumSize(QtCore.QSize(30, 30))
-        self.home_PushButton.setIcon(QtGui.QIcon(home_png))
         self.home_PushButton.setObjectName("home_PushButton")
         self.horizontalLayout.addWidget(self.home_PushButton)
         self.horizontalLayout_2.addWidget(self.wpWidget_5)
@@ -141,22 +125,16 @@ class Ui_searchbar(object):
         self.urlbar = LineEdit(self.wpWidget_3)
         self.urlbar.setMinimumSize(QtCore.QSize(300, 28))
         self.urlbar.setMaximumSize(QtCore.QSize(16777215, 28))
-        self.urlbar.setStyleSheet("QLineEdit{\n"
-"    margin-right: 5px;\n"
-"    background-color:rgb(27, 27, 27);\n"
-"    border-radius:12px;\n"
-"    color:rgb(240, 240, 240);\n"
-"    padding-left:15px;\n"
-"    border: 1px solid rgba(255, 255, 255, 50);\n"
-"}\n"
-"QLineEdit:focus{\n"
-"    border: 1px solid rgba(99, 173, 229, 150);\n"
-"}")
         self.urlbar.setObjectName("urlbar")
 
 
         self.horizontalLayout_2.addWidget(self.urlbar)
-        self.horizontalLayout_2.addWidget(self.settings_PushButton)
+		
+        self.spacer = QtWidgets.QSpacerItem(0, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(self.spacer)
+        self.horizontalLayout_2.addWidget(self.connection_status_PushButton)	
+        self.horizontalLayout_2.addWidget(self.settings_PushButton)	
+
         self.verticalLayout_2.addWidget(self.wpWidget_3)
         self.wpWidget_4 = QtWidgets.QWidget(self.wpWidget_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -171,35 +149,22 @@ class Ui_searchbar(object):
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.verticalLayout_2.addWidget(self.wpWidget_4)
         self.verticalLayout.addWidget(self.wpWidget_2)
-
-        self.wpWidget_2.setStyleSheet("QPushButton{\n"
-"    background-color:rgba(0, 0, 0, 0);\n"
-"    color:rgb(255, 255, 255);\n"
-"    font-size:17px;\n"
-"}\n"
-"QPushButton:hover{\n"
-"    background-color:rgba(144, 144, 144, 30);\n"
-"    border-radius:5px;\n"
-"}")     
+                        
         
-        # set auto completer for the url bar
-        completer = QCompleter(AutoCompleteWords)
-        self.urlbar.setCompleter(completer)
+        # read auto complete sites from txt
+        with open((os.path.join(current_dir, "auto_complete_sites.txt")), 'r') as file:
+            AutoCompleteWords = [line.strip() for line in file]
+            # set auto completer for the url bar
+            completer = QCompleter(AutoCompleteWords)
+            self.urlbar.setCompleter(completer)
+            # close the file
+            file.close()
+
 
         QtCore.QMetaObject.connectSlotsByName(wpWidget)
 
-        # set universal style
-        self.setStyleSheet("""
-            QLineEdit { color: rgb(255, 255, 255); }
-            QCheckBox { color: rgb(255, 255, 255); }
-            QPlainTextEdit { color: rgb(255, 255, 255); }
-            QLabel { color: rgb(255, 255, 255); }
-            QComboBox { color: rgb(255, 255, 255); }
-            QListView { color: rgb(255, 255, 255); }
-            QPushButton { color: rgb(255, 255, 255); }
-        """)
-
         # set tooltips
+        self.connection_status_PushButton.setToolTip('Connection Status')  
         self.settings_PushButton.setToolTip('Open Settings Window')  
         self.home_PushButton.setToolTip("return to Homepage")
         self.reload_PushButton.setToolTip("reload current page")

@@ -1,8 +1,8 @@
 PyQtWebEngine
 configparser
 PyQt5-tools
-DateTime
 requests
+DateTime
 adblock
 random
 regex

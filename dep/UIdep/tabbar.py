@@ -6,12 +6,9 @@ import os
 # import outside python
 from dep.python.functions import functions
 
+
 # get dir
 current_dir = os.path.dirname(os.path.realpath(__file__)).replace("\\", "/")
-
-# images
-close_png = current_dir+'/UIres/close.png'
-close_gray_png = current_dir+'/UIres/close_gray.png'
 
 
 class Ui_tabbar(object):
@@ -24,53 +21,6 @@ class Ui_tabbar(object):
         self.tabs.setDocumentMode(True)
         # making tabs visible
         self.tabs.setObjectName("tabs")
-        # create stylesheet for the tabs
-        self.tabs.setStyleSheet("""
-            QTabBar::close-button {
-                image: url("""+close_gray_png+"""); 
-            }
-
-            QTabBar::close-button:selected {
-                image: url("""+close_png+"""); 
-            }
-
-            QTabBar::close-button:hover {
-                background-color:rgba(210, 210, 210, 30);
-            }
-
-            QTabBar::close-button:hover:selected {
-                background-color:rgba(144, 144, 144, 30);
-                border-radius:5px;
-            }
-            
-            QTabBar {
-                background-color: rgb(35, 34, 39);
-                color: rgb(255, 255, 255);
-                border-bottom: 1.5px solid white;
-            }
-
-            QTabBar::tab {
-                background-color: rgb(27, 27, 27);
-                margin-left: 1px;
-                margin-right: 2px;
-                margin-top: 2px;
-                margin-bottom: 4px;
-            }
-
-            QTabBar::tab:selected {
-                background-color: rgb(27, 27, 27);
-                border-top: 0.5px solid white;
-                border-right: 0.5px solid white;
-                border-left: 0.5px solid white;
-                border-top-left-radius: 4px;
-                border-top-right-radius: 4px;
-            }
-
-
-            QTabBar::tab:hover {
-                background-color:rgb(10, 10, 10);
-            }
-            """)
 
         # add tabs to widget
         self.verticalLayout_3.addWidget(self.tabs)
@@ -81,24 +31,30 @@ class Ui_tabbar(object):
         functions.tab_functions.add_new_tab(self, self.tabs, functions.misc.set_url(self), 'Homepage')
       
         # adding action when double clicked
-        self.tabs.tabBarDoubleClicked.connect(lambda: functions.tab_functions.tab_open_doubleclick(self, self.tabs))
+        self.tabs.tabBarDoubleClicked.connect(lambda: functions.tab_functions.add_new_tab(self, self.tabs))
         
         # adding action when tab is changed
         self.tabs.currentChanged.connect(lambda: functions.tab_functions.current_tab_changed(self, self.tabs))
         
         # adding action when tab close is requested
         self.tabs.tabCloseRequested.connect(self.close_current_tab)  
-        
+
+
+    def get_pages(self):
+        # list of the current tab pages
+        return [self.tabs.widget(index) for index in range(self.tabs.count())]
+
     # close tab
     def close_current_tab(self, index):
-        # if there is only one tab
-        if self.tabs.count() < 2:
-            # do nothing
-            return
-        # mute the tab
-        #for tabIndex in range(self.tabs.count()):
-        #    if tabIndex == (index+1):
-        #        self.browser.setAudioMuted(True)
-        #    else:pass
-        # else remove the tab
-        self.tabs.removeTab(index)
+        # dont close the last tab
+        if not self.tabs.count() < 2:
+            pages = self.get_pages()
+            if 0 <= index < self.tabs.count():
+                page_to_close = pages[index]
+                # remove tab and browser instance
+                self.tabs.removeTab(index)
+                page_to_close.deleteLater()
+            else:
+                print("Invalid tab index.")
+        return
+    

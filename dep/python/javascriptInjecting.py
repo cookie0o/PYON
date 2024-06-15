@@ -16,7 +16,7 @@ def getBlockerSettings():
     
     # youtube blocking
     youtube_ad_blocker = blocker["youtube_ad_blocker"]
-    if youtube_ad_blocker == "true": youtube_ad_blocker = True
+    if youtube_ad_blocker == "True": youtube_ad_blocker = True
     else: youtube_ad_blocker = False
 
     return youtube_ad_blocker
@@ -27,7 +27,7 @@ def getJavascript():
     youtube_ad_blocker_js = ""
     
     # youtube ad blocking js
-    with open(youtube_ad_blocking_js, "r") as f:
+    with open(youtube_ad_blocking_js, "r", encoding='utf-8') as f:
         content = f.read()
         youtube_ad_blocker_js += content
     
@@ -38,15 +38,18 @@ youtube_ad_blocker_js = getJavascript()
 class javascript():
     def inject(self):
         # run injection when page is done loading
-        self.browser.loadFinished.connect(self.on_load_finished)
+        self.browser.loadFinished.connect(lambda _, i=self.i, tabs=self.tabs:  
+                self.on_load_finished_youtube(i, tabs))
         
         
-    def on_load_finished(self, status):
-        if status:
-            if youtube_ad_blocker:
-                # check if the page is youtube
-                is_youtube = self.browser.url().host() == "www.youtube.com"
-                # check
-                if is_youtube:
-                    # page is youtube inject javascript
-                    self.browser.page().runJavaScript(youtube_ad_blocker_js)
+    def on_load_finished_youtube(self, i, tabs):
+        if self.youtube_ad_blocker:
+            widget = tabs.widget(i)
+
+            # check if the page is youtube
+            is_youtube = widget.page().url().host() == "www.youtube.com"
+
+            # check
+            if is_youtube:
+                # page is youtube inject javascript
+                widget.page().runJavaScript(youtube_ad_blocker_js)

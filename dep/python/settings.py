@@ -1,10 +1,16 @@
 from PyQt5.QtWebEngineWidgets import QWebEngineSettings
 from PyQt5.QtNetwork import QNetworkProxy
 import configparser
+import json
 import os
 
+from PyQt5.QtCore import *
+
 # import outside python
+from dep.UIdep.colors import set_style
+from dep.python.functions import *
 from dep.python.fake import *
+
 
 # dirs
 dep_dir = os.path.abspath(os.path.join(os.path.realpath(__file__), '..', '..')).replace("\\", "/")
@@ -15,10 +21,11 @@ config = configparser.ConfigParser()
 config.read(config_file)
 
 # default values
-default_search_engine = "https://google.com"
-default_search_engine_addr = "https://google.com/search?q="
-tor_default_search_engine = "https://duckduckgo.com"
+default_search_engine = "https://start.duckduckgo.com"
+default_search_engine_addr = "https://duckduckgo.com/?&q="
+tor_default_search_engine = "https://start.duckduckgo.com"
 tor_default_search_engine_addr = "https://duckduckgo.com/?&q="
+default_theme_name = "Dark"
 
 developer = config['Developer']
 general = config['General']
@@ -27,6 +34,7 @@ blocker = config['Blocker']
 useragent = config['User.Agent']
 privacy = config['Privacy']
 proxy = config['Proxy']
+
 
 class settings():
     def settings_load(self): 
@@ -48,6 +56,11 @@ class settings():
         javascript = general["javascript"]
         if javascript == "True": self.javascript = True
         else: self.javascript = False
+        self.javascript = True
+        
+        theme_name = general["theme_name"]
+        if theme_name == "": self.theme_name = default_theme_name
+        else: self.theme_name = theme_name
         
         # [Custom]
         search_engine = custom["search_engine"]
@@ -103,23 +116,20 @@ class settings():
         cookie_lists = blocker["cookie_lists"]
         if cookie_lists == "": self.cookie_lists = ""
         else: self.cookie_lists = cookie_lists
-        
+
+        # youtube blocking
+        youtube_ad_blocker = blocker["youtube_ad_blocker"]
+        if youtube_ad_blocker == "True": self.youtube_ad_blocker = True
+        else: self.youtube_ad_blocker = False
+
         # [User.Agent]
-        default_user_agent = useragent["default_user_agent"]
-        if default_user_agent == "True": self.default_user_agent = True
-        else: self.default_user_agent = False
+        user_agent_option = useragent["user_agent_option"]
+        if user_agent_option == "": self.user_agent_option = ""
+        else: self.user_agent_option = user_agent_option
         #
-        random_user_agent = useragent["random_user_agent"]
-        if random_user_agent == "True": self.random_user_agent = True
-        else: self.random_user_agent = False
-        #
-        custom_user_agent = useragent["custom_user_agent"]
-        if custom_user_agent == "True": self.custom_user_agent = True
-        else: self.custom_user_agent = False
-        #
-        custom_user_agent_input = useragent["custom_user_agent_input"]
-        if custom_user_agent_input == "": self.custom_user_agent_input = ""
-        else: self.custom_user_agent_input = custom_user_agent_input
+        custom_useragent = useragent["custom_useragent"]
+        if custom_useragent == "": self.custom_useragent = ""
+        else: self.custom_useragent = custom_useragent
         
         # [Privacy]
         RouteTrafficThroughTor = privacy["RouteTrafficThroughTor"]
@@ -135,20 +145,16 @@ class settings():
         else: self.TrackingLinkProtection = False
         
         # [Proxy]
-        OffProxy = proxy["OffProxy"]
-        if OffProxy == "True": self.OffProxy = True
-        else: self.OffProxy = False    
-        #
-        CustomProxy = proxy["CustomProxy"]
-        if CustomProxy == "True": self.CustomProxy = True
-        else: self.CustomProxy = False   
+        proxy_option = proxy["proxy_option"]
+        if proxy_option == "": self.proxy_option = ""
+        else: self.proxy_option = proxy_option
         #
         custom_proxy_address_input = proxy["custom_proxy_address_input"]
-        if custom_proxy_address_input == "": self.custom_proxy_address_input = "0.0.0.0"
+        if custom_proxy_address_input == "": self.custom_proxy_address_input = ""
         else: self.custom_proxy_address_input = custom_proxy_address_input
         #
         custom_proxy_port_input = proxy["custom_proxy_port_input"]
-        if custom_proxy_port_input == "": self.custom_proxy_port_input = "0000"
+        if custom_proxy_port_input == "": self.custom_proxy_port_input = 0000
         else: self.custom_proxy_port_input = custom_proxy_port_input
         #
         applyProxy = proxy["applyProxy"]
@@ -162,6 +168,7 @@ class settings():
 
         # [General]
         general["javascript"] = str(self.javascript)
+        general["theme_name"] = str(self.theme_name)
         
         # [Custom]
         custom["search_engine"] = str(self.search_engine)
@@ -193,13 +200,9 @@ class settings():
         blocker["cookie_lists"] = str(self.cookie_lists)
         
         # [User.Agent]
-        useragent["default_user_agent"] = str(self.default_user_agent)
+        useragent["user_agent_option"] = str(self.user_agent_option)
         #
-        useragent["random_user_agent"] = str(self.random_user_agent)
-        #
-        useragent["custom_user_agent"] = str(self.custom_user_agent)
-        #
-        useragent["custom_user_agent_input"] = str(self.custom_user_agent_input)
+        useragent["custom_useragent"] = str(self.custom_useragent)
         
         # [Privacy]
         privacy["RouteTrafficThroughTor"] = str(self.RouteTrafficThroughTor)
@@ -209,9 +212,7 @@ class settings():
         privacy["TrackingLinkProtection"] = str(self.TrackingLinkProtection)
         
         # [Proxy]
-        proxy["OffProxy"] = str(self.OffProxy)  
-        #
-        proxy["CustomProxy"] = str(self.CustomProxy)
+        proxy["proxy_option"] = str(self.proxy_option)  
         #
         proxy["custom_proxy_address_input"] = str(self.custom_proxy_address_input)
         #
@@ -232,38 +233,30 @@ class settings():
         
         # apply all settings than can be applied
         
+        # [Developer]
+        if self.debug_javaScriptConsoleMessage:
+            qInstallMessageHandler(None)
+        else:
+            qInstallMessageHandler(functions.misc.MessageHandler)
+
         # [General]
         self.browser.settings().setAttribute(QWebEngineSettings.JavascriptEnabled, self.javascript)
             
         # [User.Agent]
-        # check if the default user agent should be used
-        if self.default_user_agent:
-            self.UserAgentInput_widget.setDisabled(True)
-            self.UserAgentInput_widget.setStyleSheet("background-color: #4a4949; color: #4a4949;")
-            self.profile.setHttpUserAgent("")
-            # disable user agent input and change color to display
-            self.UserAgentInput_plainTextEdit.setReadOnly(True)
-            self.UserAgentInput_plainTextEdit.setStyleSheet("color: gray;")
-            
         # check if random user agent should be used
-        elif self.random_user_agent:
-            self.UserAgentInput_widget.setDisabled(True)
-            self.UserAgentInput_widget.setStyleSheet("background-color: #4a4949; color: #4a4949;")
+        if self.user_agent_option == "random":
             # generate and set a random useragent
             self.profile.setHttpUserAgent(fake.useragent())
-            # disable user agent input and change color to display
-            self.UserAgentInput_plainTextEdit.setReadOnly(True)
-            self.UserAgentInput_plainTextEdit.setStyleSheet("color: gray;")
         
         # check if custom user agent should be used
-        elif self.custom_user_agent:
-            self.UserAgentInput_widget.setDisabled(False)
-            self.UserAgentInput_widget.setStyleSheet("background-color: transparent; color: white;")
+        elif self.user_agent_option == "custom":
             # get and set useragent
-            self.profile.setHttpUserAgent(str(self.custom_user_agent_input))
-            # enable user agent input and change color to display
-            self.UserAgentInput_plainTextEdit.setReadOnly(False)
-            self.UserAgentInput_plainTextEdit.setStyleSheet("color: white;")
+            self.profile.setHttpUserAgent(str(self.custom_useragent))
+            
+         # check if the default user agent should be used (and default if nothing is set)
+        else:
+            self.profile.setHttpUserAgent("")
+            
             
         # [Privacy]
         # rote traffic through tor
@@ -272,33 +265,136 @@ class settings():
             self.proxy.setType(QNetworkProxy.Socks5Proxy)
             self.proxy.setHostName("127.0.0.1")
             self.proxy.setPort(self.socks_port)
-        if not self.RouteTrafficThroughTor:
+        else:
             QNetworkProxy.setApplicationProxy(QNetworkProxy(QNetworkProxy.NoProxy))
+            
             
         # [Proxy]
         if not self.RouteTrafficThroughTor:
-            if self.OffProxy:
-                self.ProxyInput_widget.setDisabled(True)
-                self.ProxyInput_widget.setStyleSheet("background-color: #4a4949; color: #4a4949;")
-                self.applyProxy = False
+            # set custom proxy
+            if self.proxy_option == "custom":
+                self.proxy.setType(QNetworkProxy.Socks5Proxy)
+                self.proxy.setHostName(str(self.custom_proxy_address_input))
+                self.proxy.setPort(int(self.custom_proxy_port_input))
+            
+            # Deactivate proxy
+            else:
                 # Deactivate proxy
                 QNetworkProxy.setApplicationProxy(QNetworkProxy(QNetworkProxy.NoProxy))
             
-            elif self.CustomProxy:
-                self.ProxyInput_widget.setDisabled(False)
-                self.ProxyInput_widget.setStyleSheet("background-color: transparent; color: white;")
-                # set custom proxy
-                if self.applyProxy:
-                    self.proxy.setType(QNetworkProxy.Socks5Proxy)
-                    self.proxy.setHostName(str(self.custom_proxy_address_input))
-                    self.proxy.setPort(int(self.custom_proxy_port_input))
-                    self.proxy.setCapabilities(QNetworkProxy.SctpTunnelingCapability)
-        if self.RouteTrafficThroughTor:
-            self.ProxyInput_widget.setDisabled(True)
-            self.ProxyInput_widget.setStyleSheet("background-color: #4a4949; color: #4a4949;")
-            
         # set proxy
         QNetworkProxy.setApplicationProxy(self.proxy) 
-        # reload the browser so settings can apply
+
+        # reload the browser so settings can apply except pages pages
         self.browser.reload()
         
+        # update/set stylesheets
+        set_style(self)
+
+
+    def settings_page_fetch(self, localStorageStates):
+        # convert str back to dict 
+        localStorageStates = json.loads(localStorageStates)
+        
+        if localStorageStates is not None:
+            self.javascript                 = localStorageStates.get("javascript")
+            self.theme_name                 = localStorageStates.get("theme_name")
+            self.ad_blocker                 = localStorageStates.get("ad_blocker")
+            self.cookie_blocker             = localStorageStates.get("cookie_blocker")
+            self.privacy_blocker            = localStorageStates.get("privacy_blocker")
+            self.proxy_option               = localStorageStates.get("proxyOption")
+            self.custom_proxy_address_input = localStorageStates.get("customProxyAddress")
+            self.custom_proxy_port_input    = localStorageStates.get("customProxyPort")
+            self.RouteTrafficThroughTor     = localStorageStates.get("routeThroughTor")
+            self.TorSearchEngineBypass      = localStorageStates.get("torSearchEngineBypass")
+            self.TrackingLinkProtection     = localStorageStates.get("trackingLinkProtection")
+            self.youtube_ad_blocker         = localStorageStates.get("youtube_ad_blocker")
+            self.user_agent_option          = localStorageStates.get("userAgentOption")
+            self.custom_useragent           = localStorageStates.get("custom_useragent")
+
+            # save and apply settings
+            self.settings_save()
+            self.settings_apply()
+        return
+
+
+    def inject_qt(self, i, tabs):
+        try:
+            widget = tabs.widget(i)
+
+            if not (widget.page().url().toString()).replace("file:///", "") == self.settings_page:
+                return
+
+            widget.page().setWebChannel(self.channel)
+            widget.page().loadFinished.connect(lambda: inject(widget))
+        except:
+            return
+        
+        def inject(widget):
+            widget.page().runJavaScript("""
+                (function() {
+                    // Check if the script is already present to avoid adding it multiple times
+                    if (!document.querySelector('script[src="qrc:///qtwebchannel/qwebchannel.js"]')) {
+                        var script = document.createElement('script');
+                        script.src = 'qrc:///qtwebchannel/qwebchannel.js';
+                        script.onload = function() {
+                            var webChannel = new QWebChannel(qt.webChannelTransport, function(channel) {
+                                const saveBtn = document.getElementById('save_btn');
+
+                                // Remove any existing click event listener to avoid duplicates
+                                saveBtn.removeEventListener('click', handleSaveBtnClick);
+
+                                // Add click event listener to the save button
+                                saveBtn.addEventListener('click', handleSaveBtnClick);
+
+                                function handleSaveBtnClick() {
+                                    window.jsInterface = channel.objects.JsInterface;
+
+                                    let localStorageStates = {};
+                                    for (let i = 0; i < localStorage.length; i++) {
+                                        const key = localStorage.key(i);
+                                        const value = localStorage.getItem(key);
+                                        // Set key-value pair in the object
+                                        localStorageStates[key] = JSON.parse(value);
+                                    }
+
+                                    const localStorageStatesJson = JSON.stringify(localStorageStates);
+
+                                    console.log(localStorageStatesJson);
+                                    jsInterface.settings(localStorageStatesJson);
+                                }
+                            });
+                        };
+                        document.head.appendChild(script);
+                    } else {
+                        // If the script is already loaded, set up the web channel directly
+                        var webChannel = new QWebChannel(qt.webChannelTransport, function(channel) {
+                            const saveBtn = document.getElementById('save_btn');
+
+                            // Remove any existing click event listener to avoid duplicates
+                            saveBtn.removeEventListener('click', handleSaveBtnClick);
+
+                            // Add click event listener to the save button
+                            saveBtn.addEventListener('click', handleSaveBtnClick);
+
+                            function handleSaveBtnClick() {
+                                window.jsInterface = channel.objects.JsInterface;
+
+                                let localStorageStates = {};
+                                for (let i = 0; i < localStorage.length; i++) {
+                                    const key = localStorage.key(i);
+                                    const value = localStorage.getItem(key);
+                                    // Set key-value pair in the object
+                                    localStorageStates[key] = JSON.parse(value);
+                                }
+
+                                const localStorageStatesJson = JSON.stringify(localStorageStates);
+
+                                console.log(localStorageStatesJson);
+                                jsInterface.settings(localStorageStatesJson);
+                            }
+                        });
+                    }
+                })();
+            """)
+        return

@@ -1,3 +1,4 @@
+from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -6,7 +7,6 @@ import sys
 import os
 
 # import UI components
-from dep.UIdep.settingspage import Ui_settings
 from dep.UIdep.searchbar import Ui_searchbar
 from dep.UIdep.tabbar import Ui_tabbar
 
@@ -16,6 +16,7 @@ from dep.python.javascriptInjecting import javascript
 from dep.python.TorRouting import TorProxy
 from dep.python.functions import functions
 from dep.python.settings import settings
+from dep.python.pages import pages_vars
 from dep.python.fake import *
 
 # get current dir
@@ -27,61 +28,93 @@ DEBUG_URL = 'http://127.0.0.1:%s' % DEBUG_PORT
 os.environ['QTWEBENGINE_REMOTE_DEBUGGING'] = DEBUG_PORT
 
 
-# hide js logs
-class WebEnginePage(QWebEnginePage):
-    def javaScriptConsoleMessage(self, level, msg, line, sourceID):
-        if self.debug_javaScriptConsoleMessage:
-            print("Lvl: "+level+" - Msg: "+msg)
 
-class MainWindow(QWidget, javascript, Ui_searchbar, Ui_tabbar, Ui_settings, settings, TorProxy):
-    # constructor
+class MainWindow(QWidget, javascript, Ui_searchbar, Ui_tabbar, settings, pages_vars):       
+    # constructor    
     def __init__(self, parent = None):
-        super(MainWindow, self).__init__(parent = parent)
-        self.setMouseTracking(True)
-        
-        # get profile
-        functions.misc.get_profile(self, current_dir)
-        
-        # load settings
-        self.settings_load()
-        
-        # outside uis
-        self.setupUi(self) # main search bar
-        self.tabsetupUi(self) # tab bar
-        self.settingssetupUi(self) # settings page
-        # hide setting page on start
-        self.show_hideSettingsPage()
-        
-        # launch tor proxy
-        self.launchTorProxy()        
-
-        # apply settings
-        self.settings_apply()
-    
-        # javascript injection
-        self.inject()
-                
-        # setup
-        self.resize(1500, 800)
-
-        # Events
-        self.urlbar.returnPressed.connect(lambda: functions.tab_functions.navigate_to_url(self))
-        self.back_PushButton.clicked.connect(lambda: self.tabs.currentWidget().back())
-        self.forward_PushButton.clicked.connect(lambda: self.tabs.currentWidget().forward())
-        self.reload_PushButton.clicked.connect(lambda: self.tabs.currentWidget().reload())
-        self.home_PushButton.clicked.connect(lambda: self.tabs.currentWidget().setUrl(QUrl(functions.misc.set_url(self))))
-        self.settings_PushButton.clicked.connect(lambda: self.show_hideSettingsPage())
-        self.browser.urlChanged.connect(lambda: functions.misc.TorSearchEngineBypassFunc(self))
+        try:
+            super(MainWindow, self).__init__(parent = parent)
+            self_ = self
+            self.socks_port = 9001
+            self.control_port = 9002
+            self.ip_api = "http://ip-api.com/json/"
             
+            class JsInterfaces(QObject):
+                @pyqtSlot(str)
+                def settings(self, localStorageStates):
+                    # clean the string before parsing it 
+                    safe_characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.,{}:,""1234567890'
+                    if all(char in safe_characters for char in str(localStorageStates)):
+                        settings.settings_page_fetch(self_, localStorageStates)
+                    else:
+                        return
+
+            # window settings
+            self.setMouseTracking(True)
+
+            self.vars()
+            self.prefix = "about:"
+
+            # load settings
+            self.settings_load()
+
+            # get profile
+            functions.misc.get_profile(self, current_dir)
+            
+            # outside uis
+            self.setupUi(self) # main search bar
+            self.tabsetupUi(self) # tab bar
+            
+            # launch tor proxy before browser if turned on
+            tor_proxy = TorProxy(self_)
+            if self.RouteTrafficThroughTor:
+                tor_proxy.start()
+                tor_proxy.wait()
+            else:
+                # run tor in the background
+                tor_proxy.start()
+
+            # apply settings
+            self.settings_apply()
+        
+            # javascript injection
+            self.inject()
+                    
+            # setup
+            self.resize(1500, 800)
+
+
+            # Events
+            self.urlbar.returnPressed.connect(lambda: functions.tab_functions.navigate_to_url(self))
+            self.back_PushButton.clicked.connect(lambda: self.tabs.currentWidget().back())
+            self.forward_PushButton.clicked.connect(lambda: self.tabs.currentWidget().forward())
+            self.reload_PushButton.clicked.connect(lambda: self.tabs.currentWidget().reload())
+            self.home_PushButton.clicked.connect(lambda: self.tabs.currentWidget().setUrl(QUrl(functions.misc.set_url(self))))
+            self.connection_status_PushButton.clicked.connect(lambda: functions.misc.connection_status_msg(self))
+            self.settings_PushButton.clicked.connect(lambda: functions.tab_functions.add_new_tab(self, self.tabs, self.pages("settings")))
+
+            # settings page channel
+            self.channel = QWebChannel()
+            self.js_interface = JsInterfaces()
+            self.channel.registerObject("JsInterface", self.js_interface)
+        except Exception as e:
+            raise e
+
+    def mousePressEvent(self, event):
+        self.oldPos = event.globalPos()
+
+    def mouseMoveEvent(self, event):
+        delta = QPoint(event.globalPos() - self.oldPos)
+        self.move(self.x() + delta.x(), self.y() + delta.y())
+        self.oldPos = event.globalPos()
+        
     def resizeEvent(self, event):
-        # settings window positioning
-        self.settings_widget.setGeometry(QRect((self.width() - 320), 62, 320, self.height()))
-        # set height of its elements
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 320, (self.height() - 20)))
-        self.background.setGeometry(QRect(0, 0, 320, (self.height())))
-        self.scrollArea.setGeometry(QRect(0, 0, 320, (self.height())))
-        # height of all options combined
-        self.scrollAreaWidgetContents.setMinimumSize(self.scrollAreaWidgetContents.minimumWidth(), 700)
+        # Set the spacer width to 10% of the window width searchbar
+        window_width = self.width()
+        spacer_width = window_width * 0.10
+        self.spacer.changeSize(int(spacer_width), 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.horizontalLayout_2.invalidate()
+
 
 def main(appName, appVersion):
     # Handle high resolution displays:

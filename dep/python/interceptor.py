@@ -1,6 +1,5 @@
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import QUrl
 import configparser
 import requests
 import datetime
@@ -15,7 +14,6 @@ dep_dir = os.path.abspath(os.path.join(os.path.realpath(__file__), '..', '..')).
 ad_list_dir = os.path.join(current_dir, "interceptor/lists/ad")
 privacy_list_dir = os.path.join(current_dir, "interceptor/lists/privacy")
 cookie_list_dir = os.path.join(current_dir, "interceptor/lists/cookie")
-youtube_ad_file = os.path.join(current_dir, "interceptor/YouTubeSpecific/YouTubeAntiBlockFixRules.txt")
 tracking_link_list_dir = os.path.join(current_dir, "interceptor/lists/tracking")
 
 
@@ -83,17 +81,12 @@ def getBlockerSettings():
     if cookie_lists == "": cookie_lists = ""
     else: cookie_lists = cookie_lists
     
-    # youtube blocking
-    youtube_ad_blocker = blocker["youtube_ad_blocker"]
-    if youtube_ad_blocker == "True": youtube_ad_blocker = True
-    else: youtube_ad_blocker = False
-    
     # tracker
     tracking_link_blocker = privacy["TrackingLinkProtection"]
     if tracking_link_blocker == "True": tracking_link_blocker = True
     else: tracking_link_blocker = False
 
-    return force_update, ad_blocker, privacy_blocker, cookie_blocker, ad_auto_update, privacy_auto_update, cookie_auto_update, ad_lists, privacy_lists, cookie_lists, youtube_ad_blocker, tracking_link_blocker
+    return force_update, ad_blocker, privacy_blocker, cookie_blocker, ad_auto_update, privacy_auto_update, cookie_auto_update, ad_lists, privacy_lists, cookie_lists, tracking_link_blocker
 
 class LastRun():
     def last_updated_function():
@@ -139,7 +132,7 @@ def DownloadUpdateLists(force_update):
             return
     
     # get vars
-    force_update, ad_blocker, privacy_blocker, cookie_blocker, ad_auto_update, privacy_auto_update, cookie_auto_update,ad_lists, privacy_lists, cookie_lists, youtube_ad_blocker, tracking_link_blocker  = getBlockerSettings()
+    force_update, ad_blocker, privacy_blocker, cookie_blocker, ad_auto_update, privacy_auto_update, cookie_auto_update,ad_lists, privacy_lists, cookie_lists, tracking_link_blocker  = getBlockerSettings()
 
     # ad block auto update and list download
     if ad_auto_update:
@@ -195,7 +188,6 @@ def init_lists():
     ad_filters = ""
     privacy_filters = ""
     cookie_filters = ""
-    youtube_ad_filters = ""
     tracking_link_filters = ""
     
     # ad lists
@@ -222,12 +214,6 @@ def init_lists():
                 content = f.read()
                 cookie_filters += content    
     
-    # youtube ad lists
-    file_path = os.path.join(youtube_ad_file)
-    with open(file_path, "r") as f:
-        content = f.read()
-        youtube_ad_filters += content 
-    
     # tracking link lists
     for filename in os.listdir(tracking_link_list_dir):
         if filename.endswith(".txt"):
@@ -235,10 +221,10 @@ def init_lists():
             with open(file_path, "r") as f:
                 content = f.read()
                 tracking_link_filters += content    
-    return ad_filters, privacy_filters, cookie_filters, youtube_ad_filters, tracking_link_filters
+    return ad_filters, privacy_filters, cookie_filters, tracking_link_filters
 
 # get lists
-ad_filters, privacy_filters, cookie_filters, youtube_ad_filters, tracking_link_filters = init_lists()
+ad_filters, privacy_filters, cookie_filters, tracking_link_filters = init_lists()
 
 
 class blocking():
@@ -295,32 +281,16 @@ class blocking():
         assert isinstance(cookie_blocker_result, adblock.BlockerResult)
         if cookie_blocker_result.matched: return True
         
-    def youtube_ad_blocking(url, source_url, resource_type):
-        # init filter sets
-        youtube_ad_filter_set = adblock.FilterSet(debug=True)
-        youtube_ad_filter_set.add_filter_list(youtube_ad_filters)
-        # create engine
-        youtube_ad_engine = adblock.Engine(filter_set=youtube_ad_filter_set)
-        
-        # check url
-        youtube_ad_blocker_result = youtube_ad_engine.check_network_urls(
-            url=url,
-            source_url=source_url,
-            request_type=resource_type,
-        )
-        # return True if True else check other filters
-        assert isinstance(youtube_ad_blocker_result, adblock.BlockerResult)
-        if youtube_ad_blocker_result.matched: return True
         
     def tracking_link_blocking(url, source_url, resource_type):
         # init filter sets
         tracking_link_filter_set = adblock.FilterSet(debug=True)
         tracking_link_filter_set.add_filter_list(tracking_link_filters)
         # create engine
-        youtube_ad_engine = adblock.Engine(filter_set=tracking_link_filter_set)
+        tracking_engine = adblock.Engine(filter_set=tracking_link_filter_set)
         
         # check url
-        tracking_link_protection_result = youtube_ad_engine.check_network_urls(
+        tracking_link_protection_result = tracking_engine.check_network_urls(
             url=url,
             source_url=source_url,
             request_type=resource_type,
@@ -333,7 +303,7 @@ class blocking():
 class UrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
     def interceptRequest(self, request):
         # get vars
-        force_update, ad_blocker, privacy_blocker, cookie_blocker, ad_auto_update, privacy_auto_update, cookie_auto_update,ad_lists, privacy_lists, cookie_lists, youtube_ad_blocker, tracking_link_blocker  = getBlockerSettings()
+        force_update, ad_blocker, privacy_blocker, cookie_blocker, ad_auto_update, privacy_auto_update, cookie_auto_update,ad_lists, privacy_lists, cookie_lists, tracking_link_blocker  = getBlockerSettings()
 
         # run auto update
         DownloadUpdateLists(force_update)
@@ -370,15 +340,6 @@ class UrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
             cookie_result = blocking.cookie_blocking(url, source_url, resource_type)
             # block if True else pass
             if cookie_result == True:
-                request.block(True)
-                return
-            
-        # check if youtube ad blocking is active
-        if youtube_ad_blocker:
-            # check if url should be blocked (ads)
-            youtube_ad_result = blocking.youtube_ad_blocking(url, source_url, resource_type)
-            # block if True else pass
-            if youtube_ad_result == True:
                 request.block(True)
                 return
             

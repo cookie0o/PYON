@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Settings</title>
+
+        <link rel="stylesheet" #type="text/css" href="style.css" onload="this.media='all'">
+        <link rel="icon" type="image/png" href="./icon.png" />
+    </head>
+    <div class="loader-container">
+        <div class="spinner"></div>
+    </div>
+    <body>
+        <h1>Settings</h1>
+        <div>
+            <h2>General</h3>
+            <select id="themes" name="themes">
+                <option value="Dark">Dark</option>
+                <option value="Light">Light</option>
+            </select>
+            <label for="themes">Theme</label><br>
+        </div>
+        <div>
+            <h2>Blocking</h3>
+            <input type="checkbox" id="ad_blocker" name="ad_blocker">
+            <label for="ad_blocker">AD blocker</label><br>
+
+            <input type="checkbox" id="privacy_blocker" name="privacy_blocker">
+            <label for="privacy_blocker">Privacy blocker</label><br>
+
+            <input type="checkbox" id="cookie_blocker" name="cookie_blocker">
+            <label for="cookie_blocker">Cookie blocker</label><br>
+
+            <input type="checkbox" id="youtube_ad_blocker" name="youtube_ad_blocker">
+            <label for="youtube_ad_blocker">YouTube AD blocker</label><br>
+        </div>
+        <div>
+            <h2>User-Agent</h3>
+            <input type="radio" checked="checked" name="radio" id="default_user_agent">
+            <label for="default_user_agent">Default User-Agent</label><br>
+
+            <input type="radio" name="radio" id="random_user_agent">
+            <label for="random_user_agent">Random User-Agent</label><br>
+
+            <input type="radio" name="radio" id="custom_user_agent">
+            <label for="custom_user_agent">Custom User-Agent</label><br>
+
+            <input type="text" id="custom_user_agent_input">
+        </div>
+        <div>
+            <h2>Privacy</h3>
+            <input type="checkbox" id="routetrafficthroughtor" name="routetrafficthroughtor">
+            <label for="routetrafficthroughtor">Route Traffic through Tor</label><br>
+
+            <input type="checkbox" id="torsearchenginebypass" name="torsearchenginebypass">
+            <label for="torsearchenginebypass">Tor Search Engine Bypass</label><br>
+
+            <input type="checkbox" id="trackinglinkprotection" name="trackinglinkprotection">
+            <label for="trackinglinkprotection">Tracking link Protection</label><br>
+        </div>
+        <div>
+            <h2>Proxy (SOCKS5)</h3>
+            <div id="proxy-content">
+                <input type="radio" checked="checked" name="radio_proxy" id="offproxy">
+                <label for="offproxy">No Proxy</label><br>
+        
+                <input type="radio" name="radio_proxy" id="customproxy">
+                <label for="customproxy">Custom Proxy</label><br>
+
+                <label for="custom_proxy_address_input">Address:</label><br>
+                <input type="text" id="custom_proxy_address_input"><br>
+                <label for="custom_proxy_port_input">Port:</label><br>
+                <input type="text" id="custom_proxy_port_input">
+            </div>
+        </div>
+    </body>
+    <button class="save_btn" id="save_btn">Save</button>
+
+    <script src="./script.js"></script>
+</html>
