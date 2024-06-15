@@ -116,7 +116,7 @@ def DownloadUpdateLists(force_update):
             # Check if the request was successful (status code 200)
             if response.status_code == 200:
                 # Save the content to a local file
-                with open(file_name, "w", encoding="utf-8") as file:
+                with open(file_name, "w", encoding="utf-8", errors="ignore") as file:
                     file.write(response.text)
             else:
                 print(f"Failed to download {url}. Status code: {response.status_code}")
@@ -183,6 +183,23 @@ resource_types = {
     255: "other"
 }
 
+# Function to read and process files in a directory
+def process_directory(directory, filters):
+    for filename in os.listdir(directory):
+        if filename.endswith(".txt"):
+            file_path = os.path.join(directory, filename)
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        if not line.startswith("!"):
+                            filters += line
+            except UnicodeDecodeError:
+                with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+                    for line in f:
+                        if not line.startswith("!"):
+                            filters += line
+    return filters
+
 # Iterate through all files with .txt extension in the specified directory
 def init_lists():
     ad_filters = ""
@@ -190,47 +207,30 @@ def init_lists():
     cookie_filters = ""
     tracking_link_filters = ""
     
-    # ad lists
-    for filename in os.listdir(ad_list_dir):
-        if filename.endswith(".txt"):
-            file_path = os.path.join(ad_list_dir, filename)
-            with open(file_path, "r") as f:
-                content = f.read()
-                ad_filters += content
-                
-    # privacy lists
-    for filename in os.listdir(privacy_list_dir):
-        if filename.endswith(".txt"):
-            file_path = os.path.join(privacy_list_dir, filename)
-            with open(file_path, "r") as f:
-                content = f.read()
-                privacy_filters += content
+    try:
+        # ad lists
+        ad_filters = process_directory(ad_list_dir, ad_filters)
+                    
+        # privacy lists
+        privacy_filters = process_directory(privacy_list_dir, privacy_filters)
 
-    # cookie lists
-    for filename in os.listdir(cookie_list_dir):
-        if filename.endswith(".txt"):
-            file_path = os.path.join(cookie_list_dir, filename)
-            with open(file_path, "r") as f:
-                content = f.read()
-                cookie_filters += content    
+        # cookie lists
+        cookie_filters = process_directory(cookie_list_dir, cookie_filters)   
+        
+        # tracking link lists
+        tracking_link_filters = process_directory(tracking_link_list_dir, tracking_link_filters)
+    except Exception as e:
+        print (e)
     
-    # tracking link lists
-    for filename in os.listdir(tracking_link_list_dir):
-        if filename.endswith(".txt"):
-            file_path = os.path.join(tracking_link_list_dir, filename)
-            with open(file_path, "r") as f:
-                content = f.read()
-                tracking_link_filters += content    
     return ad_filters, privacy_filters, cookie_filters, tracking_link_filters
 
 # get lists
 ad_filters, privacy_filters, cookie_filters, tracking_link_filters = init_lists()
 
-
 class blocking():
     def ad_blocking(url, source_url, resource_type):
         # init filter sets
-        ad_filter_set = adblock.FilterSet(debug=True)
+        ad_filter_set = adblock.FilterSet()
         ad_filter_set.add_filter_list(ad_filters)
         # create engine
         ad_engine = adblock.Engine(filter_set=ad_filter_set)
@@ -248,7 +248,7 @@ class blocking():
         
     def privacy_blocking( url, source_url, resource_type):
         # init filter sets
-        privacy_filter_set = adblock.FilterSet(debug=True)
+        privacy_filter_set = adblock.FilterSet()
         privacy_filter_set.add_filter_list(privacy_filters)
         # create engine
         privacy_engine = adblock.Engine(filter_set=privacy_filter_set)
@@ -266,7 +266,7 @@ class blocking():
         
     def cookie_blocking(url, source_url, resource_type):
         # init filter sets
-        cookie_filter_set = adblock.FilterSet(debug=True)
+        cookie_filter_set = adblock.FilterSet()
         cookie_filter_set.add_filter_list(cookie_filters)
         # create engine
         cookie_engine = adblock.Engine(filter_set=cookie_filter_set)
@@ -284,7 +284,7 @@ class blocking():
         
     def tracking_link_blocking(url, source_url, resource_type):
         # init filter sets
-        tracking_link_filter_set = adblock.FilterSet(debug=True)
+        tracking_link_filter_set = adblock.FilterSet()
         tracking_link_filter_set.add_filter_list(tracking_link_filters)
         # create engine
         tracking_engine = adblock.Engine(filter_set=tracking_link_filter_set)
