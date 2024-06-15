@@ -9,7 +9,7 @@ PYON (Python Online) is a fully featured Browser made with PyQt5.
 - AD, Tracker, Cookie blocker
 ...
 
-### Preview
+### Preview (Dark/Light Theme)
 ![image](https://github.com/cookie0o/PYON/assets/81589649/1c5ec25a-d86f-48d9-8c04-3bc546a58163)
 
 
