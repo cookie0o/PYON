@@ -6,7 +6,7 @@ PYON (Python Online) is a fully featured Browser made with PyQt5.
 - Tor Routing
 - Custom Proxy
 - Youtube AD block
-- AD, Tracker, Cookie blocker
+- AD, Tracker, Cookie blocker   
 ...
 
 ### Preview (Dark/Light Theme)
