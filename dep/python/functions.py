@@ -212,48 +212,7 @@ class functions():
                         # set proxy
                         QNetworkProxy.setApplicationProxy(self.proxy) 
                     self.browser.load()
-        
-        # Get tor status and IP
-        def connection_status_msg(self): 
-            msg_box = QMessageBox()
-            
-            req = QNetworkRequest(QUrl(self.ip_api))
-            
-            self.nam = QNetworkAccessManager()
-            self.nam.finished.connect(lambda reply: handleResponse(self, reply))
-            self.nam.get(req)  
-            
-            def handleResponse(self, reply):
-                er = reply.error()
-                
-                # if no error show info
-                if er == QNetworkReply.NoError:
-                    # reply
-                    bytes_string = reply.readAll().data()
-                    json_str = bytes_string.decode('utf-8')
-                    json_obj = json.loads(json_str)
-                    
-                    # values
-                    if self.RouteTrafficThroughTor:
-                        Tor = "ON"
-                    else:
-                        Tor = "OFF"
-                    IP = json_obj["query"]
-                    Location = json_obj["country"]+", "+json_obj["regionName"]+": "+json_obj["city"]
-                    
-                    # message box
-                    msg_box.setWindowTitle('Tor Info')
-                    msg_box.setText(f"""\
-Tor:           {Tor}
-IP:             {IP}
-Location: {Location}
-""")
-                    msg_box.exec_()
-                    
-                # report error
-                else:
-                    print("Error occured: ", er)
-                    print(reply.errorString()) 
+
             
         
     # set_tab_title, update_urlbar, add_new_tab, navigate_to_url,

@@ -105,10 +105,6 @@ class Ui_searchbar(object):
         self.reload_PushButton.setMaximumSize(QtCore.QSize(30, 30))
         self.reload_PushButton.setObjectName("reload_PushButton")
         self.horizontalLayout.addWidget(self.reload_PushButton)
-        self.connection_status_PushButton = QtWidgets.QPushButton(self.wpWidget_5)
-        self.connection_status_PushButton.setMinimumSize(QtCore.QSize(30, 30))
-        self.connection_status_PushButton.setMaximumSize(QtCore.QSize(30, 30))
-        self.connection_status_PushButton.setObjectName("connection_status_PushButton")
         self.settings_PushButton = QtWidgets.QPushButton(self.wpWidget_5)
         self.settings_PushButton.setMinimumSize(QtCore.QSize(30, 30))
         self.settings_PushButton.setMaximumSize(QtCore.QSize(30, 30))
@@ -131,8 +127,7 @@ class Ui_searchbar(object):
         self.horizontalLayout_2.addWidget(self.urlbar)
 		
         self.spacer = QtWidgets.QSpacerItem(0, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_2.addItem(self.spacer)
-        self.horizontalLayout_2.addWidget(self.connection_status_PushButton)	
+        self.horizontalLayout_2.addItem(self.spacer)	
         self.horizontalLayout_2.addWidget(self.settings_PushButton)	
 
         self.verticalLayout_2.addWidget(self.wpWidget_3)
@@ -164,7 +159,6 @@ class Ui_searchbar(object):
         QtCore.QMetaObject.connectSlotsByName(wpWidget)
 
         # set tooltips
-        self.connection_status_PushButton.setToolTip('Connection Status')  
         self.settings_PushButton.setToolTip('Open Settings Window')  
         self.home_PushButton.setToolTip("return to Homepage")
         self.reload_PushButton.setToolTip("reload current page")

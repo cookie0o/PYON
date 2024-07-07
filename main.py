@@ -37,7 +37,6 @@ class MainWindow(QWidget, javascript, Ui_searchbar, Ui_tabbar, settings, pages_v
             self_ = self
             self.socks_port = 9001
             self.control_port = 9002
-            self.ip_api = "http://ip-api.com/json/"
             
             class JsInterfaces(QObject):
                 @pyqtSlot(str)
@@ -90,7 +89,6 @@ class MainWindow(QWidget, javascript, Ui_searchbar, Ui_tabbar, settings, pages_v
             self.forward_PushButton.clicked.connect(lambda: self.tabs.currentWidget().forward())
             self.reload_PushButton.clicked.connect(lambda: self.tabs.currentWidget().reload())
             self.home_PushButton.clicked.connect(lambda: self.tabs.currentWidget().setUrl(QUrl(functions.misc.set_url(self))))
-            self.connection_status_PushButton.clicked.connect(lambda: functions.misc.connection_status_msg(self))
             self.settings_PushButton.clicked.connect(lambda: functions.tab_functions.add_new_tab(self, self.tabs, self.pages("settings")))
 
             # settings page channel

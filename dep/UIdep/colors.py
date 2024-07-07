@@ -187,7 +187,6 @@ def set_style(self):
         self.forward_PushButton.setIcon(QtGui.QIcon(theme(self)["forward_png"]))
         self.reload_PushButton.setIcon(QtGui.QIcon(theme(self)["reload_png"]))
         self.home_PushButton.setIcon(QtGui.QIcon(theme(self)["home_png"]))
-        self.connection_status_PushButton.setIcon(QtGui.QIcon(theme(self)["connection_png"]))
         self.settings_PushButton.setIcon(QtGui.QIcon(theme(self)["settings_png"]))
     except Exception as e:
         print ("Apply Theme Colors Error: "+e)
