@@ -320,7 +320,7 @@ class functions():
 
                 # setting tab index
                 self.i = self.tabs.addTab(self.browser, label)
-                self.tabs.setCurrentIndex(0)
+                self.tabs.setCurrentIndex(self.i)
 
                 # adding action to the browser when url is changed
                 # update the url
@@ -341,7 +341,7 @@ class functions():
                                 functions.tab_functions.get_icon_from_url(self, i, tabs))
             
                 # fullscreen mode event
-                self.browser.page().fullScreenRequested.connect(lambda request: functions.tab_functions.Fullscreen(self, request))
+                self.browser.page().fullScreenRequested.connect(lambda request: functions.tab_functions.Fullscreen(self, request))            
             except Exception as e:
                 raise (e)  
 
@@ -372,7 +372,7 @@ class functions():
                 
             # if scheme is http
             if q.scheme() == "http":
-                reply = QMessageBox.question(self, 'Warning', 'You are using "http" change to "https" ?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                reply = QMessageBox.question(self, 'Warning', 'You are using "http": change to "https" ?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                 if reply == QMessageBox.Yes:
                     # set scheme
                     q.setScheme("https")
