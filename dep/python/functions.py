@@ -237,18 +237,19 @@ class functions():
 
         # activate fullscreen mode
         def Fullscreen(self, request):
+            # accept the request
+            request.accept()
+            
             if request.toggleOn():
-                self.showFullScreen()
                 # hide gui elements
                 self.tabs.setTabBarAutoHide(True) # tabbar
                 self.wpWidget_3.hide() # search bar  
+                self.showFullScreen()
             else:
                 self.showNormal()
                 # show gui elements
                 self.tabs.setTabBarAutoHide(False) # tabbar
                 self.wpWidget_3.show() # search bar
-            # accept the request
-            request.accept()
         
 
         # change tab title
@@ -292,7 +293,15 @@ class functions():
                 if qurl is None:
                     # get start page url
                     qurl = functions.misc.set_url(self)
-
+    
+                # check if settings page is already open
+                if qurl == self.pages("settings"):
+                    for index in range(self.tabs.count()):
+                        tab_url = (self.tabs.widget(index).url().toString().strip().lower()).replace("file:///", "")
+                        if tab_url == (self.pages("settings").toString().strip().lower()):
+                            print("Settings page is already open")
+                            return
+    
                 # creating a QWebEngineView object
                 self.browser = QWebEngineView()
                 page = QWebEnginePage(self.browser)
@@ -353,7 +362,7 @@ class functions():
 
             # pages
             if q.toString() == self.prefix+"settings":
-                # get and load pages url
+                # get pages url
                 q = self.pages(q.toString())
 
             # if scheme is blank and there is no domain end then use the default search machine to get a result

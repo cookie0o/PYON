@@ -199,6 +199,9 @@ class settings():
         #
         blocker["cookie_lists"] = str(self.cookie_lists)
         
+        # youtube ad blocking
+        blocker["youtube_ad_blocker"] = str(self.youtube_ad_blocker)
+        
         # [User.Agent]
         useragent["user_agent_option"] = str(self.user_agent_option)
         #

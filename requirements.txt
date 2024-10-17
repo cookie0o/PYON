@@ -4,7 +4,6 @@ PyQt5-tools
 requests
 DateTime
 adblock
-random
 regex
 PyQt5
 stem

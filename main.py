@@ -3,6 +3,7 @@ from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+import pkg_resources
 import sys
 import os
 
@@ -32,6 +33,25 @@ os.environ['QTWEBENGINE_REMOTE_DEBUGGING'] = DEBUG_PORT
 class MainWindow(QWidget, javascript, Ui_searchbar, Ui_tabbar, settings, pages_vars):       
     # constructor    
     def __init__(self, parent = None):
+        try:
+            # check dependency's
+            requirements_file = (os.path.join(current_dir, "requirements.txt"))
+
+            # Read requirements.txt file
+            with open(requirements_file, 'r') as f:
+                dependencies = f.read().splitlines()
+
+            # Check if each package is installed
+            for dependency in dependencies:
+                try:
+                    pkg_resources.require(dependency)
+                except pkg_resources.DistributionNotFound:
+                    print (f"{dependency} is not installed (Might cause crashes)")
+                except pkg_resources.VersionConflict as e:
+                    print (f"{dependency} has a version conflict: {e} (Might cause crashes)")
+        except Exception as e:
+            raise e
+        
         try:
             super(MainWindow, self).__init__(parent = parent)
             self_ = self
