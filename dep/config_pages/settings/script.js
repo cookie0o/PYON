@@ -14,8 +14,6 @@ const customUserAgent = document.getElementById("custom_user_agent");
 const customUserAgentInput = document.getElementById("custom_user_agent_input");
 
 // Privacy
-const routeThroughTor = document.getElementById("routetrafficthroughtor");
-const torSearchEngineBypass = document.getElementById("torsearchenginebypass");
 const trackingLinkProtection = document.getElementById("trackinglinkprotection");
 
 // Proxy
@@ -41,18 +39,6 @@ const overlay = document.createElement('div');
 overlay.className = 'proxy-overlay';
 contentDiv.appendChild(overlay);
 
-
-// gray out proxy when tor is active
-document.addEventListener('DOMContentLoaded', function() {
-    // Event listener for the checkbox
-    routeThroughTor.addEventListener('change', function() {
-        if (routeThroughTor.checked) {
-            overlay.style.display = 'block';
-        } else {
-            overlay.style.display = 'none';
-        }
-    });
-});
 
 
 // Load settings from localStorage
@@ -94,8 +80,6 @@ window.onload = (event) => {
     customUserAgentInput.value = JSON.parse(localStorage.getItem('custom_userAgent'));
 
     // Privacy
-    routeThroughTor.checked = JSON.parse(localStorage.getItem('routeThroughTor'));
-    torSearchEngineBypass.checked = JSON.parse(localStorage.getItem('torSearchEngineBypass'));
     trackingLinkProtection.checked = JSON.parse(localStorage.getItem('trackingLinkProtection'));
 
     // Proxy
@@ -108,12 +92,6 @@ window.onload = (event) => {
     customProxyAddressInput.value = JSON.parse(localStorage.getItem('customProxyAddress'));
     customProxyPortInput.value = JSON.parse(localStorage.getItem('customProxyPort'));
 
-    // show proxy options or not
-    if (routeThroughTor.checked) {
-        overlay.style.display = 'block';
-    } else {
-        overlay.style.display = 'none';
-    }
 };
 
 
@@ -141,8 +119,6 @@ document.getElementById("save_btn").addEventListener('click', () => {
     localStorage.setItem('custom_userAgent', JSON.stringify(customUserAgentInput.value));
 
     // Privacy
-    localStorage.setItem('routeThroughTor', JSON.stringify(routeThroughTor.checked));
-    localStorage.setItem('torSearchEngineBypass', JSON.stringify(torSearchEngineBypass.checked));
     localStorage.setItem('trackingLinkProtection', JSON.stringify(trackingLinkProtection.checked));
 
     // Proxy

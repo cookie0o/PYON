@@ -171,8 +171,7 @@ def set_style(self):
         """)
         self.wpWidget_2.setStyleSheet("""
             QPushButton{
-                background-color: rgba(0, 0, 0, 0);
-                color: """+theme(self)["color"]+""";
+                background-color: """+theme(self)["background_color"]+""";
                 font-size:17px;
             }
             QPushButton:hover{

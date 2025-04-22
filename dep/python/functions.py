@@ -124,7 +124,7 @@ class IconLoader(QObject):
 
 
 class functions():
-    # showContextMenu, UpdateUserAgent, get_profile, TorSearchEngineBypassFunc, Tor_status_msg
+    # showContextMenu, UpdateUserAgent, get_profile
     class misc():
         # hide js logs
         def MessageHandler(messageType, context, message):
@@ -189,29 +189,8 @@ class functions():
 
         # get default search engine
         def set_url(self):
-            if self.RouteTrafficThroughTor:
-                return self.tor_search_engine
-            else:
-                return self.search_engine
+            return self.search_engine
             
-        # Tor Search Engine Bypass
-        def TorSearchEngineBypassFunc(self, url=None):
-            # only active when tor routing is on
-            if self.RouteTrafficThroughTor:
-                if self.TorSearchEngineBypass:
-                    self.browser.stop()
-                    if url is None:
-                        url = self.browser.url().host().replace("www.", "")
-                    if url in SearchEngineUrl:
-                        QNetworkProxy.setApplicationProxy(QNetworkProxy(QNetworkProxy.NoProxy))
-                    else:
-                        # set proxy
-                        self.proxy.setType(QNetworkProxy.Socks5Proxy)
-                        self.proxy.setHostName("127.0.0.1")
-                        self.proxy.setPort(self.socks_port)
-                        # set proxy
-                        QNetworkProxy.setApplicationProxy(self.proxy) 
-                    self.browser.load()
 
             
         
@@ -324,9 +303,6 @@ class functions():
                 # apply settings
                 self.settings_apply()
 
-                # setting url to browser
-                self.browser.setUrl(QUrl(qurl))
-
                 # setting tab index
                 self.i = self.tabs.addTab(self.browser, label)
                 self.tabs.setCurrentIndex(self.i)
@@ -350,7 +326,10 @@ class functions():
                                 functions.tab_functions.get_icon_from_url(self, i, tabs))
             
                 # fullscreen mode event
-                self.browser.page().fullScreenRequested.connect(lambda request: functions.tab_functions.Fullscreen(self, request))            
+                self.browser.page().fullScreenRequested.connect(lambda request: functions.tab_functions.Fullscreen(self, request))  
+
+                # setting url to browser
+                self.browser.setUrl(QUrl(qurl))          
             except Exception as e:
                 raise (e)  
 
@@ -369,12 +348,9 @@ class functions():
             if q.scheme() == "":
                 # add a scheme to check if the user just forgot to add it if its still not valid use google
                 if (re.match(regex, "https://"+q.toString()) is not None) == False:
-                    # domain is not a url use search engine (if Tor: tor search engine)
+                    # domain is not a url use search engine
                     search = (q.toString()).replace(" ", "+")
-                    if self.RouteTrafficThroughTor:
-                        q = QUrl(self.tor_search_engine_addr + search)
-                    else:
-                        q = QUrl(self.search_engine_addr + search)
+                    q = QUrl(self.search_engine_addr + search)
                 else:
                     # domain is a url add https
                     q.setScheme("https")
@@ -387,9 +363,7 @@ class functions():
                     q.setScheme("https")
                 else:
                     pass
-                
-            # check Tor Search EngineBypass before loading
-            functions.misc.TorSearchEngineBypassFunc(self, q)
+
             # set the url
             self.tabs.currentWidget().load(q)
 

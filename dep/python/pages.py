@@ -33,7 +33,7 @@ class pages_vars():
             pages_url = (pages_url.replace(self.prefix, ""))
 
         # return
-        return QUrl(self.file_pages[pages_url])
+        return QUrl(str("file://"+(self.file_pages[pages_url])))
         
 
 

@@ -14,7 +14,6 @@ from dep.UIdep.tabbar import Ui_tabbar
 # import outside python
 from dep.python.interceptor import UrlRequestInterceptor
 from dep.python.javascriptInjecting import javascript
-from dep.python.TorRouting import TorProxy
 from dep.python.functions import functions
 from dep.python.settings import settings
 from dep.python.pages import pages_vars
@@ -83,15 +82,6 @@ class MainWindow(QWidget, javascript, Ui_searchbar, Ui_tabbar, settings, pages_v
             # outside uis
             self.setupUi(self) # main search bar
             self.tabsetupUi(self) # tab bar
-            
-            # launch tor proxy before browser if turned on
-            tor_proxy = TorProxy(self_)
-            if self.RouteTrafficThroughTor:
-                tor_proxy.start()
-                tor_proxy.wait()
-            else:
-                # run tor in the background
-                tor_proxy.start()
 
             # apply settings
             self.settings_apply()

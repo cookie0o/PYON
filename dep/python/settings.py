@@ -23,8 +23,6 @@ config.read(config_file)
 # default values
 default_search_engine = "https://start.duckduckgo.com"
 default_search_engine_addr = "https://duckduckgo.com/?&q="
-tor_default_search_engine = "https://start.duckduckgo.com"
-tor_default_search_engine_addr = "https://duckduckgo.com/?&q="
 default_theme_name = "Dark"
 
 developer = config['Developer']
@@ -69,14 +67,7 @@ class settings():
         search_engine_addr = custom["search_engine_addr"]
         if search_engine_addr == "": self.search_engine_addr = default_search_engine_addr
         else: self.search_engine_addr = search_engine_addr
-        #
-        tor_search_engine = custom["tor_search_engine"]
-        if tor_search_engine == "": self.tor_search_engine = tor_default_search_engine
-        else: self.tor_search_engine = tor_search_engine
-        tor_search_engine_addr = custom["tor_search_engine_addr"]
-        if tor_search_engine_addr == "": self.tor_search_engine_addr = tor_default_search_engine_addr
-        else: self.tor_search_engine_addr = tor_search_engine_addr    
-        
+
         # [Blocker]
         # ad blocking
         ad_blocker = blocker["ad_blocker"]
@@ -132,13 +123,6 @@ class settings():
         else: self.custom_useragent = custom_useragent
         
         # [Privacy]
-        RouteTrafficThroughTor = privacy["RouteTrafficThroughTor"]
-        if RouteTrafficThroughTor == "True": self.RouteTrafficThroughTor = True
-        else: self.RouteTrafficThroughTor = False
-        #
-        TorSearchEngineBypass = privacy["TorSearchEngineBypass"]
-        if TorSearchEngineBypass == "True": self.TorSearchEngineBypass = True
-        else: self.TorSearchEngineBypass = False
         #
         TrackingLinkProtection = privacy["TrackingLinkProtection"]
         if TrackingLinkProtection == "True": self.TrackingLinkProtection = True
@@ -173,9 +157,6 @@ class settings():
         # [Custom]
         custom["search_engine"] = str(self.search_engine)
         custom["search_engine_addr"] = str(self.search_engine_addr)
-        #
-        custom["tor_search_engine"] = str(self.tor_search_engine)
-        custom["tor_search_engine_addr"] = str(self.tor_search_engine_addr)
         
         # [Blocker]
         # ad blocking
@@ -208,10 +189,6 @@ class settings():
         useragent["custom_useragent"] = str(self.custom_useragent)
         
         # [Privacy]
-        privacy["RouteTrafficThroughTor"] = str(self.RouteTrafficThroughTor)
-        #
-        privacy["TorSearchEngineBypass"] = str(self.TorSearchEngineBypass)
-        #
         privacy["TrackingLinkProtection"] = str(self.TrackingLinkProtection)
         
         # [Proxy]
@@ -262,28 +239,16 @@ class settings():
             
             
         # [Privacy]
-        # rote traffic through tor
-        if self.RouteTrafficThroughTor:
-            # set proxy
+        # set custom proxy
+        if self.proxy_option == "custom":
             self.proxy.setType(QNetworkProxy.Socks5Proxy)
-            self.proxy.setHostName("127.0.0.1")
-            self.proxy.setPort(self.socks_port)
+            self.proxy.setHostName(str(self.custom_proxy_address_input))
+            self.proxy.setPort(int(self.custom_proxy_port_input))
+            
+        # Deactivate proxy
         else:
-            QNetworkProxy.setApplicationProxy(QNetworkProxy(QNetworkProxy.NoProxy))
-            
-            
-        # [Proxy]
-        if not self.RouteTrafficThroughTor:
-            # set custom proxy
-            if self.proxy_option == "custom":
-                self.proxy.setType(QNetworkProxy.Socks5Proxy)
-                self.proxy.setHostName(str(self.custom_proxy_address_input))
-                self.proxy.setPort(int(self.custom_proxy_port_input))
-            
             # Deactivate proxy
-            else:
-                # Deactivate proxy
-                QNetworkProxy.setApplicationProxy(QNetworkProxy(QNetworkProxy.NoProxy))
+            QNetworkProxy.setApplicationProxy(QNetworkProxy(QNetworkProxy.NoProxy))
             
         # set proxy
         QNetworkProxy.setApplicationProxy(self.proxy) 
@@ -298,7 +263,7 @@ class settings():
     def settings_page_fetch(self, localStorageStates):
         # convert str back to dict 
         localStorageStates = json.loads(localStorageStates)
-        
+        print (localStorageStates)
         if localStorageStates is not None:
             self.javascript                 = localStorageStates.get("javascript")
             self.theme_name                 = localStorageStates.get("theme_name")
@@ -308,8 +273,6 @@ class settings():
             self.proxy_option               = localStorageStates.get("proxyOption")
             self.custom_proxy_address_input = localStorageStates.get("customProxyAddress")
             self.custom_proxy_port_input    = localStorageStates.get("customProxyPort")
-            self.RouteTrafficThroughTor     = localStorageStates.get("routeThroughTor")
-            self.TorSearchEngineBypass      = localStorageStates.get("torSearchEngineBypass")
             self.TrackingLinkProtection     = localStorageStates.get("trackingLinkProtection")
             self.youtube_ad_blocker         = localStorageStates.get("youtube_ad_blocker")
             self.user_agent_option          = localStorageStates.get("userAgentOption")
@@ -325,7 +288,7 @@ class settings():
         try:
             widget = tabs.widget(i)
 
-            if not (widget.page().url().toString()).replace("file:///", "") == self.settings_page:
+            if not (widget.page().url().toString()).replace("file://", "") == self.settings_page:
                 return
 
             widget.page().setWebChannel(self.channel)

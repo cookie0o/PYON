@@ -1,6 +1,5 @@
 PyQtWebEngine
 configparser
-PyQt5-tools
 requests
 DateTime
 adblock
