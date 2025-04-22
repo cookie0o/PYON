@@ -222,12 +222,14 @@ class functions():
             if request.toggleOn():
                 # hide gui elements
                 self.tabs.setTabBarAutoHide(True) # tabbar
+                self.tabs.tabBar().hide()
                 self.wpWidget_3.hide() # search bar  
                 self.showFullScreen()
             else:
                 self.showNormal()
                 # show gui elements
                 self.tabs.setTabBarAutoHide(False) # tabbar
+                self.tabs.tabBar().show()
                 self.wpWidget_3.show() # search bar
         
 
