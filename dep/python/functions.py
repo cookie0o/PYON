@@ -257,7 +257,7 @@ class functions():
                 return
             
             # dont update prefix urls
-            #if ((q.toString()).replace("file:///", "")) in self.pages_paths:
+            #if ((q.toString()).replace(self.file_prefix, "")) in self.pages_paths:
             #    return
             
             # set text to the url bar
@@ -275,13 +275,16 @@ class functions():
                     # get start page url
                     qurl = functions.misc.set_url(self)
     
+                # Do what you want.
+                """
                 # check if settings page is already open
                 if qurl == self.pages("settings"):
                     for index in range(self.tabs.count()):
-                        tab_url = (self.tabs.widget(index).url().toString().strip().lower()).replace("file:///", "")
+                        tab_url = (self.tabs.widget(index).url().toString().strip().lower()).replace(self.file_prefix, "")
                         if tab_url == (self.pages("settings").toString().strip().lower()):
                             print("Settings page is already open")
                             return
+                """
     
                 # creating a QWebEngineView object
                 self.browser = QWebEngineView()

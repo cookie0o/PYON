@@ -288,7 +288,7 @@ class settings():
         try:
             widget = tabs.widget(i)
 
-            if not (widget.page().url().toString()).replace("file://", "") == self.settings_page:
+            if not (widget.page().url().toString()).replace(self.file_prefix, "") == self.settings_page:
                 return
 
             widget.page().setWebChannel(self.channel)

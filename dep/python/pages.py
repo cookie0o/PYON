@@ -1,5 +1,7 @@
 from PyQt5.QtCore import *
+import sys
 import os
+
 
 
 
@@ -32,8 +34,7 @@ class pages_vars():
         if self.prefix in pages_url:
             pages_url = (pages_url.replace(self.prefix, ""))
 
-        # return
-        return QUrl(str("file://"+(self.file_pages[pages_url])))
-        
+        # return based on system
+        return QUrl(str(self.file_prefix+(self.file_pages[pages_url])))
 
 

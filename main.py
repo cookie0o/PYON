@@ -73,6 +73,11 @@ class MainWindow(QWidget, javascript, Ui_searchbar, Ui_tabbar, settings, pages_v
             self.vars()
             self.prefix = "about:"
 
+            if sys.platform.startswith('win'):
+                self.file_prefix = "file:///"
+            else:
+                self.file_prefix = "file://"
+
             # load settings
             self.settings_load()
 

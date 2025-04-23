@@ -1,0 +1,4 @@
+data/
+dep/python/__pycache__/
+dep/UIdep/__pycache__/
+dep/config.cfg
